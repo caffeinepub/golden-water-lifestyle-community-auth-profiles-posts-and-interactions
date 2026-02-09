@@ -1,0 +1,330 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 17,
+  "summary": "Build an adults-only (18+) lifestyle community app centered around the theme of “golden water,” where members can join, share posts, and interact.",
+  "architectural_notes": [
+    "Implement an 18+ gate (e.g., age acknowledgement screen/checkbox) and persist the user’s acceptance status to prevent access without confirmation."
+  ],
+  "known_issues": [
+    "Image upload feature is not working (user reports: \"add images doesnt work\")."
+  ],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-a-lifestyle-community-web-app-centered-on-the-theme-golden-water-where-members-can-sign-in-join-the-community-share-posts-and-interact-with-each-other",
+      "title": "Create a lifestyle community web app centered on the theme “golden water” where members can sign in, join the community, share posts, and interact with each other.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-core-frontend-screens-using-react-typescript-tailwind-shadcn-composition-1-landing-page-explaining-the-community-2-sign-in-sign-out-using-internet-identity-3-profile-editor-view-for-the-signed-in-user-4-main-feed-with-post-composer-and-list-of-posts-5-post-detail-with-comments",
+      "title": "Build the core frontend screens using React + TypeScript + Tailwind + shadcn composition: (1) Landing page explaining the community, (2) Sign-in / Sign-out using Internet Identity, (3) Profile editor/view for the signed-in user, (4) Main feed with post composer and list of posts, (5) Post detail with comments.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-basic-community-interactions-and-moderation-lite-safeguards-simple-reporting-flagging-of-posts-comments-and-a-minimal-content-guideline-display",
+      "title": "Add basic community interactions and moderation-lite safeguards: simple reporting/flagging of posts/comments and a minimal content guideline display.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-cohesive-creative-visual-theme-appropriate-to-a-golden-water-lifestyle-community-and-enforce-it-consistently-across-pages-colors-typography-spacing-and-component-styling-avoid-a-blue-purple-color-scheme",
+      "title": "Apply a cohesive, creative visual theme appropriate to a “golden water” lifestyle community and enforce it consistently across pages (colors, typography, spacing, and component styling). Avoid a blue/purple color scheme.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-generated-static-brand-assets-and-wire-them-into-the-ui-logo-subtle-hero-background-as-files-under-frontend-public-assets-generated-and-referenced-directly-by-the-frontend",
+      "title": "Add generated static brand assets and wire them into the UI (logo + subtle hero background) as files under frontend/public/assets/generated and referenced directly by the frontend.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-explicit-18-adults-only-age-acknowledgement-gate-that-blocks-access-to-authenticated-community-features-until-the-user-confirms-they-are-at-least-18-years-old",
+      "title": "Add an explicit 18+ adults-only age acknowledgement gate that blocks access to authenticated community features until the user confirms they are at least 18 years old.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-require-18-acknowledgement-as-part-of-initial-profile-setup-and-persist-this-acknowledgement-in-the-user-profile-stored-in-the-backend",
+      "title": "Require 18+ acknowledgement as part of initial profile setup, and persist this acknowledgement in the user profile stored in the backend.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-public-facing-copy-to-clearly-communicate-the-community-is-18-only-including-the-landing-page-and-footer-messaging",
+      "title": "Update public-facing copy to clearly communicate the community is 18+ only, including the landing page and footer messaging.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-feed-page-post-composer-ui-to-allow-users-to-attach-an-image-when-creating-a-post-upload-it-to-the-backend-and-show-upload-progress-disabled-states-during-submission",
+      "title": "Update the Feed page post composer UI to allow users to attach an image when creating a post, upload it to the backend, and show upload progress/disabled states during submission.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-uploaded-images-in-the-post-ui-components-so-image-posts-display-correctly-in-the-feed-and-on-the-post-detail-page",
+      "title": "Render uploaded images in the post UI components so image posts display correctly in the feed and on the post detail page.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-create-post-image-upload-request-payload-so-it-matches-the-candid-optional-type-expected-by-the-backend-motoko-image-ensuring-image-attachments-can-be-successfully-submitted-when-creating-a-post",
+      "title": "Fix the create-post image upload request payload so it matches the Candid optional type expected by the backend (Motoko `?Image`), ensuring image attachments can be successfully submitted when creating a post.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-post-image-rendering-to-correctly-handle-the-candid-optional-image-field-returned-from-the-backend-motoko-image-so-that-posts-without-images-do-not-attempt-to-render-an-image-and-posts-with-images-consistently-display-their-attachments-in-the-feed-and-post-detail-views",
+      "title": "Fix post image rendering to correctly handle the Candid optional image field returned from the backend (Motoko `?Image`), so that posts without images do not attempt to render an image and posts with images consistently display their attachments in the feed and post detail views.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-error-reporting-in-the-feed-page-image-post-composer-so-that-failures-during-image-post-submission-surface-a-clear-english-error-message-to-the-user-including-backend-trap-messages-and-the-ui-returns-to-a-usable-state-for-retry-no-stuck-disabled-controls-file-input-can-be-re-used",
+      "title": "Improve error reporting in the Feed page image-post composer so that failures during image-post submission surface a clear English error message to the user (including backend trap messages), and the UI returns to a usable state for retry (no stuck disabled controls, file input can be re-used).",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-run-an-end-to-end-functional-verification-of-the-existing-core-user-flows-internet-identity-auth-profile-setup-18-gate-feed-browsing-post-creation-with-and-without-image-post-detail-comment-creation-like-unlike-report-and-fix-any-regressions-discovered-so-all-flows-complete-successfully-without-uncaught-errors-or-stuck-ui-states",
+      "title": "Run an end-to-end functional verification of the existing core user flows (Internet Identity auth, profile setup, 18+ gate, feed browsing, post creation with and without image, post detail, comment creation, like/unlike, report) and fix any regressions discovered so all flows complete successfully without uncaught errors or stuck UI states.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-image-upload-handling-is-fully-compatible-with-the-backend-candid-optional-image-type-image-across-the-entire-create-post-path-including-the-no-image-case-and-prevent-any-runtime-errors-when-a-user-posts-without-an-image",
+      "title": "Ensure image upload handling is fully compatible with the backend Candid optional image type (?Image) across the entire create-post path, including the “no image” case, and prevent any runtime errors when a user posts without an image.",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-harden-backend-validation-error-messaging-for-user-visible-failures-in-core-flows-so-that-common-rejection-cases-return-clear-english-trap-messages-e-g-missing-profile-missing-18-acknowledgement-oversized-images-unauthorized-access-and-ensure-the-frontend-surfaces-those-messages-to-the-user-without-leaving-the-ui-in-a-broken-state",
+      "title": "Harden backend validation/error messaging for user-visible failures in core flows so that common rejection cases return clear English trap messages (e.g., missing profile, missing 18+ acknowledgement, oversized images, unauthorized access), and ensure the frontend surfaces those messages to the user without leaving the UI in a broken state.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-any-remaining-ui-state-inconsistencies-related-to-react-query-cache-invalidation-and-view-refresh-so-newly-created-posts-comments-and-post-interaction-counts-reliably-update-in-the-feed-and-post-detail-screens-after-mutations",
+      "title": "Fix any remaining UI-state inconsistencies related to React Query cache invalidation and view refresh so newly created posts/comments and post interaction counts reliably update in the Feed and Post detail screens after mutations.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-manual-refresh-control-to-the-feed-page-so-signed-in-users-can-re-load-the-latest-posts-on-demand-with-clear-loading-and-error-feedback",
+      "title": "Add a manual “Refresh” control to the Feed page so signed-in users can re-load the latest posts on demand, with clear loading and error feedback.",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-feed-automatically-re-check-for-new-posts-periodically-while-the-feed-page-is-open-only-when-the-tab-is-in-focus-without-disrupting-the-user-s-scroll-position",
+      "title": "Make the feed automatically re-check for new posts periodically while the Feed page is open (only when the tab is in focus), without disrupting the user’s scroll position.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-the-feed-page-s-update-feedback-after-the-user-creates-a-post-so-it-is-obvious-the-feed-has-updated-and-the-new-post-is-visible",
+      "title": "Improve the Feed page’s update feedback after the user creates a post so it is obvious the feed has updated and the new post is visible.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-data-layer-react-query-hooks-to-call-the-new-backend-reaction-apis-for-posts-and-comments-and-to-fetch-display-the-new-reaction-counts-without-breaking-existing-feed-and-post-detail-flows",
+      "title": "Update the frontend data layer (React Query hooks) to call the new backend reaction APIs for posts and comments and to fetch/display the new reaction counts without breaking existing feed and post-detail flows.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-post-and-comment-ui-components-to-present-multiple-reaction-buttons-including-like-with-counts-and-toggle-state-using-clear-english-labels-tooltips-where-needed",
+      "title": "Update the post and comment UI components to present multiple reaction buttons (including Like) with counts and toggle state, using clear English labels/tooltips where needed.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-initial-load-performance-by-code-splitting-page-routes-so-the-javascript-bundle-loads-only-the-current-route-on-first-paint-landing-page-first-then-feed-post-detail-profile-when-navigated",
+      "title": "Improve initial load performance by code-splitting page routes so the JavaScript bundle loads only the current route on first paint (Landing page first, then Feed/Post Detail/Profile when navigated).",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-optimize-feed-rendering-performance-for-long-lists-of-posts-by-reducing-unnecessary-re-renders-and-expensive-work-during-render-e-g-sorting-mapping-and-per-item-state-while-keeping-existing-functionality-and-ui-intact",
+      "title": "Optimize feed rendering performance for long lists of posts by reducing unnecessary re-renders and expensive work during render (e.g., sorting/mapping and per-item state) while keeping existing functionality and UI intact.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-image-loading-performance-in-the-feed-and-post-detail-views-by-ensuring-post-attachment-images-do-not-block-rendering-and-are-loaded-efficiently-e-g-lazy-loading-async-decoding-without-changing-the-backend-image-format",
+      "title": "Improve image loading performance in the feed and post detail views by ensuring post attachment images do not block rendering and are loaded efficiently (e.g., lazy-loading, async decoding) without changing the backend image format.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-perceived-performance-and-ux-polish-across-primary-pages-by-ensuring-loading-empty-and-error-states-are-consistent-and-non-jarring-during-background-refetch-auto-refresh-especially-on-the-feed-page",
+      "title": "Improve perceived performance and UX polish across primary pages by ensuring loading, empty, and error states are consistent and non-jarring during background refetch/auto-refresh (especially on the Feed page).",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-responsiveness-and-mobile-usability-of-the-header-navigation-and-main-page-layouts-so-all-primary-actions-remain-accessible-on-small-screens",
+      "title": "Improve responsiveness and mobile usability of the header navigation and main page layouts so all primary actions remain accessible on small screens.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a lifestyle community app for “golden water” where members can join, share posts, and interact.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement backend data models and stable storage in the single Motoko main actor for: user profiles, posts, comments, and reactions/likes; expose Candid methods for CRUD operations needed by the frontend.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add an 18+ adults-only requirement: enforce age gating/acknowledgement at entry/sign-up and display relevant policy messaging.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Enforce adults-only access at the backend by rejecting creation of community content unless the caller has a profile with 18+ acknowledgement recorded.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Update the content guidelines text returned by the backend to include an explicit adults-only (18+) policy statement.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Add support for image uploads so users can create image posts (upload, store, and display images in the feed and post detail).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Extend the backend post model and APIs to support image uploads for posts, including storing image bytes in-canister and returning the image data needed for display.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add/adjust upgrade migration so existing stored posts can be upgraded to the new post schema with image fields defaulting to empty (no image), without breaking existing data.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Add backend-side validation for post image attachments to prevent oversized payloads from being stored/processed, and return a clear English error message when validation fails.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Update the app’s main feed (apply requested feed updates).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Extend the backend reaction system to support multiple reaction types (not only likes) on both posts and comments, while preserving existing like/unlike behavior for backward compatibility.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Implement backend APIs to allow a signed-in user to set, change, and remove their reaction on a specific post or comment (at most one active reaction per user per target).",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Optimize the website (performance, load time, responsiveness, and general UX polish).",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Golden Water Lifestyle Community: Auth, Profiles, Posts, and Interactions",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

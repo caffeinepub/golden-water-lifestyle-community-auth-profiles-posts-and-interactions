@@ -1,2 +1,3 @@
-# golden-water-lifestyle-community-auth-profiles-posts-and-interactions
-Exported from Caffeine project: Golden Water Lifestyle Community: Auth, Profiles, Posts, and Interactions
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

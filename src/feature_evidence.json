@@ -1,0 +1,112 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-improve-initial-load-performance-by-code-splitting-page-routes-so-the-javascript-bundle-loads-only-the-current-route-on-first-paint-landing-page-first-then-feed-post-detail-profile-when-navigated",
+      "featureTitle": "Improve initial load performance by code-splitting page routes so the JavaScript bundle loads only the current route on first paint (Landing page first, then Feed/Post Detail/Profile when navigated).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/state/RouteChunkLoading.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-31"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-optimize-feed-rendering-performance-for-long-lists-of-posts-by-reducing-unnecessary-re-renders-and-expensive-work-during-render-e-g-sorting-mapping-and-per-item-state-while-keeping-existing-functionality-and-ui-intact",
+      "featureTitle": "Optimize feed rendering performance for long lists of posts by reducing unnecessary re-renders and expensive work during render (e.g., sorting/mapping and per-item state) while keeping existing functionality and UI intact.",
+      "files": [
+        "frontend/src/components/posts/PostCard.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/FeedPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-32"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-improve-image-loading-performance-in-the-feed-and-post-detail-views-by-ensuring-post-attachment-images-do-not-block-rendering-and-are-loaded-efficiently-e-g-lazy-loading-async-decoding-without-changing-the-backend-image-format",
+      "featureTitle": "Improve image loading performance in the feed and post detail views by ensuring post attachment images do not block rendering and are loaded efficiently (e.g., lazy-loading, async decoding) without changing the backend image format.",
+      "files": [
+        "frontend/src/components/posts/PostCard.tsx",
+        "frontend/src/hooks/useBackendImageUrl.ts",
+        "frontend/src/pages/FeedPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-33"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-improve-perceived-performance-and-ux-polish-across-primary-pages-by-ensuring-loading-empty-and-error-states-are-consistent-and-non-jarring-during-background-refetch-auto-refresh-especially-on-the-feed-page",
+      "featureTitle": "Improve perceived performance and UX polish across primary pages by ensuring loading, empty, and error states are consistent and non-jarring during background refetch/auto-refresh (especially on the Feed page).",
+      "files": [
+        "frontend/src/components/state/QueryState.tsx",
+        "frontend/src/pages/FeedPage.tsx",
+        "frontend/src/pages/LandingPage.tsx",
+        "frontend/src/pages/PostDetailPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-34"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-improve-responsiveness-and-mobile-usability-of-the-header-navigation-and-main-page-layouts-so-all-primary-actions-remain-accessible-on-small-screens",
+      "featureTitle": "Improve responsiveness and mobile usability of the header navigation and main page layouts so all primary actions remain accessible on small screens.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/MobileNav.tsx",
+        "frontend/src/pages/FeedPage.tsx",
+        "frontend/src/pages/PostDetailPage.tsx",
+        "frontend/src/pages/ProfilePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-35"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

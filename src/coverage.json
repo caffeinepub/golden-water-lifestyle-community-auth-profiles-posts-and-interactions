@@ -1,0 +1,118 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-09T08:15:08.200Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 5,
+    "implemented": 5,
+    "items": [
+      {
+        "id": "REQ-31",
+        "summary": "Improve initial load performance by code-splitting page routes so the JavaScript bundle loads only the current route on first paint (Landing page first, then Feed/Post Detail/Profile when navigated).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/components/state/RouteChunkLoading.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/components/state/RouteChunkLoading.tsx"
+        ]
+      },
+      {
+        "id": "REQ-32",
+        "summary": "Optimize feed rendering performance for long lists of posts by reducing unnecessary re-renders and expensive work during render (e.g., sorting/mapping and per-item state) while keeping existing functionality and UI intact.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/components/posts/PostCard.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/components/posts/PostCard.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-33",
+        "summary": "Improve image loading performance in the feed and post detail views by ensuring post attachment images do not block rendering and are loaded efficiently (e.g., lazy-loading, async decoding) without changing the backend image format.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/posts/PostCard.tsx",
+          "frontend/src/hooks/useBackendImageUrl.ts",
+          "frontend/src/pages/FeedPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/posts/PostCard.tsx",
+          "frontend/src/hooks/useBackendImageUrl.ts",
+          "frontend/src/pages/FeedPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-34",
+        "summary": "Improve perceived performance and UX polish across primary pages by ensuring loading, empty, and error states are consistent and non-jarring during background refetch/auto-refresh (especially on the Feed page).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/state/QueryState.tsx",
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/pages/LandingPage.tsx",
+          "frontend/src/pages/PostDetailPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/state/QueryState.tsx",
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/pages/LandingPage.tsx",
+          "frontend/src/pages/PostDetailPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-35",
+        "summary": "Improve responsiveness and mobile usability of the header navigation and main page layouts so all primary actions remain accessible on small screens.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx",
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/pages/PostDetailPage.tsx",
+          "frontend/src/pages/ProfilePage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx",
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/pages/PostDetailPage.tsx",
+          "frontend/src/pages/ProfilePage.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/components/comments/CommentItem.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/MobileNav.tsx",
+    "frontend/src/components/posts/PostCard.tsx",
+    "frontend/src/components/state/QueryState.tsx",
+    "frontend/src/components/state/RouteChunkLoading.tsx",
+    "frontend/src/hooks/useBackendImageUrl.ts",
+    "frontend/src/hooks/useCurrentUser.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/FeedPage.tsx",
+    "frontend/src/pages/LandingPage.tsx",
+    "frontend/src/pages/PostDetailPage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

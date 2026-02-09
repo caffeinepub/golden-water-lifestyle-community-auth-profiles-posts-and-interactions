@@ -1,0 +1,147 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Frontend performance, responsiveness, and UX polish pass",
+  "requirements": [
+    {
+      "id": "REQ-31",
+      "summary": "Code-split route pages so only the initial route module is loaded on first paint, with a consistent route-chunk loading UI.",
+      "acceptanceCriteria": [
+        "Navigating between routes still works as before (/, /feed, /post/:postId, /profile) with no runtime errors.",
+        "The initial route no longer requires importing all page modules up-front (routes are lazy-loaded).",
+        "A loading state is shown while a route chunk is being fetched (no blank screen)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Convert non-landing routes to lazy-loaded modules (React.lazy/dynamic import) and wrap routed content in Suspense so route chunks show a non-blank loading state while fetching."
+        },
+        {
+          "path": "frontend/src/components/state/RouteChunkLoading.tsx",
+          "operation": "create",
+          "description": "Add a small, reusable loading UI specifically for route-level Suspense fallbacks (e.g., skeleton/spinner matching existing QueryState styling) so lazy route transitions never render a blank screen."
+        }
+      ]
+    },
+    {
+      "id": "REQ-32",
+      "summary": "Reduce expensive render work and unnecessary re-renders on the Feed page and post list items while preserving existing behavior/UI.",
+      "acceptanceCriteria": [
+        "With a large number of posts, scrolling the Feed page remains smooth and interactive controls (reactions, report, comments navigation) remain responsive.",
+        "No visible behavior regressions in Feed features: creating posts (with/without image), refresh, auto-refresh, reaction toggling, reporting.",
+        "No React warnings/errors are introduced."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/FeedPage.tsx",
+          "operation": "modify",
+          "description": "Memoize derived data (sorted posts) and extract the post list rendering into memoized components to avoid re-sorting/re-mapping on unrelated state changes (composer typing, background fetching). Keep existing UI structure and features intact."
+        },
+        {
+          "path": "frontend/src/components/posts/PostCard.tsx",
+          "operation": "modify",
+          "description": "Reduce per-item render churn by stabilizing handlers (useCallback), minimizing local state updates during list renders, and wrapping PostCard in React.memo with a safe comparison strategy for Post props."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Tune React Query options for feed-related queries (e.g., staleTime/keepPreviousData-like behavior where applicable) to reduce redundant refetching and re-renders during long feed sessions while preserving auto-refresh behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "summary": "Make post attachment images load efficiently and non-blockingly in feed and post detail views, with correct blob URL lifecycle management.",
+      "acceptanceCriteria": [
+        "Post images in the feed are lazy-loaded (offscreen images do not load immediately).",
+        "Images still render correctly for posts with an attachment and do not render for posts without an attachment.",
+        "No memory leaks from blob/object URLs during navigation or re-render (object URLs are revoked appropriately)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/posts/PostCard.tsx",
+          "operation": "modify",
+          "description": "Update attachment image rendering to be non-blocking and efficient: ensure img uses lazy-loading and async decoding, and move blob URL creation/revocation into a dedicated hook so object URLs are consistently revoked on unmount and when image data changes."
+        },
+        {
+          "path": "frontend/src/hooks/useBackendImageUrl.ts",
+          "operation": "create",
+          "description": "Introduce a small hook that takes an optional backend Image and returns a blob URL string (or null) while guaranteeing proper cleanup via URL.revokeObjectURL to prevent memory leaks during navigation and re-renders."
+        },
+        {
+          "path": "frontend/src/pages/FeedPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the post creation preview image does not block the rest of the feed rendering and that preview blob URLs continue to be revoked reliably on remove/unmount (keep existing behavior; adjust only for performance/safety as needed)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "summary": "Unify and polish loading/empty/error states across primary pages, especially during background refetch/auto-refresh, without flicker or scroll jumps.",
+      "acceptanceCriteria": [
+        "During background refresh/auto-refresh on Feed, the user’s scroll position is preserved and the UI does not flicker or jump.",
+        "Loading states are visible and consistent (no blank sections) for: Landing guidelines fetch, Feed posts fetch, Post detail fetch, comments fetch.",
+        "Errors are shown in clear English and do not leave the UI in a stuck/disabled state."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/state/QueryState.tsx",
+          "operation": "modify",
+          "description": "Extend shared query state components to support consistent non-jarring patterns (e.g., compact inline loading indicator and a lightweight 'background refresh' indicator) while keeping current LoadingSkeleton/ErrorState/EmptyState usage compatible."
+        },
+        {
+          "path": "frontend/src/pages/FeedPage.tsx",
+          "operation": "modify",
+          "description": "Refine initial vs background loading handling: keep current list rendered during background refresh, show a consistent inline 'Refreshing…' indicator, and avoid UI flicker by relying on cached data and memoized derived lists."
+        },
+        {
+          "path": "frontend/src/pages/LandingPage.tsx",
+          "operation": "modify",
+          "description": "Use the guidelines query loading/error states to render consistent LoadingSkeleton/ErrorState content (in English) instead of a potentially jarring text-only fallback."
+        },
+        {
+          "path": "frontend/src/pages/PostDetailPage.tsx",
+          "operation": "modify",
+          "description": "Add consistent loading and error handling for comments fetching (in addition to post fetching) and memoize comment sorting to avoid repeated expensive work during renders."
+        }
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "summary": "Improve header navigation and main layouts for small screens so primary actions remain accessible without overflow, while preserving existing gating behavior.",
+      "acceptanceCriteria": [
+        "On small screens, the header navigation does not overflow or clip; users can still reach Home, Feed (when signed in), Profile (when signed in), and Sign in/Sign out.",
+        "Primary buttons and inputs on Feed/Post Detail/Profile remain usable on mobile (no horizontal scrolling, reasonable spacing).",
+        "No changes are made to the 18+ gating and profile gating behavior (they still block protected routes as before)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Make the header/nav responsive: prevent overflow on small screens (wrap/spacing changes) and add a mobile-friendly navigation presentation that still exposes Home/Feed/Profile and Login/Logout without impacting ProfileGate/AgeAcknowledgementGate behavior."
+        },
+        {
+          "path": "frontend/src/components/layout/MobileNav.tsx",
+          "operation": "create",
+          "description": "Create a small mobile navigation component (hamburger + accessible menu) that the layout can render on small viewports to keep primary actions reachable when horizontal space is limited."
+        },
+        {
+          "path": "frontend/src/pages/FeedPage.tsx",
+          "operation": "modify",
+          "description": "Adjust feed page layout spacing for mobile (button groups, composer area, and list container) to avoid horizontal scrolling and keep primary actions comfortably tappable."
+        },
+        {
+          "path": "frontend/src/pages/PostDetailPage.tsx",
+          "operation": "modify",
+          "description": "Refine post detail page spacing and button sizing for small screens so navigation and comment composer remain usable without horizontal scrolling."
+        },
+        {
+          "path": "frontend/src/pages/ProfilePage.tsx",
+          "operation": "modify",
+          "description": "Refine profile form layout for small screens (stacking, spacing, and control sizing) to keep editing actions accessible without changing profile gating logic."
+        }
+      ]
+    }
+  ]
+}

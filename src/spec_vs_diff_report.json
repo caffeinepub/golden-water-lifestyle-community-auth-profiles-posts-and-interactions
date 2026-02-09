@@ -1,0 +1,38 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-09T08:15:08.197Z",
+  "summary": "Diff implements route-level code-splitting with Suspense fallback, introduces reusable loading/error/empty UI states, optimizes feed rendering via memoization/callback stabilization, improves image loading via lazy/async decoding and blob URL cleanup, and adds a mobile navigation sheet for responsive header UX. One key acceptance criterion around preserving scroll position / avoiding flicker during background refresh is not clearly evidenced in the diff summary.",
+  "missing_requirements": [
+    {
+      "id": "REQ-34",
+      "requirement": "During background refresh/auto-refresh on Feed, the user’s scroll position is preserved and the UI does not flicker or jump.",
+      "reason": "The diff shows auto-refresh implemented via periodic query invalidation and some rendering optimizations, but does not show any explicit scroll position preservation strategy (e.g., preventing list replacement, anchoring, or scroll restoration) or concrete logic ensuring no flicker/jump during background refetches.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/FeedPage.tsx",
+        "frontend/src/components/state/QueryState.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.63,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/comments/CommentItem.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/MobileNav.tsx",
+    "frontend/src/components/posts/PostCard.tsx",
+    "frontend/src/components/state/QueryState.tsx",
+    "frontend/src/components/state/RouteChunkLoading.tsx",
+    "frontend/src/hooks/useBackendImageUrl.ts",
+    "frontend/src/hooks/useCurrentUser.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/FeedPage.tsx",
+    "frontend/src/pages/LandingPage.tsx",
+    "frontend/src/pages/PostDetailPage.tsx",
+    "frontend/src/pages/ProfilePage.tsx",
+    "project_state.json"
+  ]
+}

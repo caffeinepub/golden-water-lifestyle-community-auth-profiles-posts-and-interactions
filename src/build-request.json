@@ -1,0 +1,113 @@
+{
+  "kind": "build_request",
+  "title": "Optimize website performance, responsiveness, and UX polish",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-31",
+      "text": "Improve initial load performance by code-splitting page routes so the JavaScript bundle loads only the current route on first paint (Landing page first, then Feed/Post Detail/Profile when navigated).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "optimize the website"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Navigating between routes still works as before (/, /feed, /post/:postId, /profile) with no runtime errors.",
+        "The initial route no longer requires importing all page modules up-front (routes are lazy-loaded).",
+        "A loading state is shown while a route chunk is being fetched (no blank screen)."
+      ]
+    },
+    {
+      "id": "REQ-32",
+      "text": "Optimize feed rendering performance for long lists of posts by reducing unnecessary re-renders and expensive work during render (e.g., sorting/mapping and per-item state) while keeping existing functionality and UI intact.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "optimize the website"
+        ]
+      },
+      "acceptanceCriteria": [
+        "With a large number of posts, scrolling the Feed page remains smooth and interactive controls (reactions, report, comments navigation) remain responsive.",
+        "No visible behavior regressions in Feed features: creating posts (with/without image), refresh, auto-refresh, reaction toggling, reporting.",
+        "No React warnings/errors are introduced."
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "text": "Improve image loading performance in the feed and post detail views by ensuring post attachment images do not block rendering and are loaded efficiently (e.g., lazy-loading, async decoding) without changing the backend image format.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "optimize the website"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Post images in the feed are lazy-loaded (offscreen images do not load immediately).",
+        "Images still render correctly for posts with an attachment and do not render for posts without an attachment.",
+        "No memory leaks from blob/object URLs during navigation or re-render (object URLs are revoked appropriately)."
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "text": "Improve perceived performance and UX polish across primary pages by ensuring loading, empty, and error states are consistent and non-jarring during background refetch/auto-refresh (especially on the Feed page).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "optimize the website"
+        ]
+      },
+      "acceptanceCriteria": [
+        "During background refresh/auto-refresh on Feed, the user’s scroll position is preserved and the UI does not flicker or jump.",
+        "Loading states are visible and consistent (no blank sections) for: Landing guidelines fetch, Feed posts fetch, Post detail fetch, comments fetch.",
+        "Errors are shown in clear English and do not leave the UI in a stuck/disabled state."
+      ]
+    },
+    {
+      "id": "REQ-35",
+      "text": "Improve responsiveness and mobile usability of the header navigation and main page layouts so all primary actions remain accessible on small screens.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "optimize the website"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On small screens, the header navigation does not overflow or clip; users can still reach Home, Feed (when signed in), Profile (when signed in), and Sign in/Sign out.",
+        "Primary buttons and inputs on Feed/Post Detail/Profile remain usable on mobile (no horizontal scrolling, reasonable spacing).",
+        "No changes are made to the 18+ gating and profile gating behavior (they still block protected routes as before)."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend/src/components/ui (shadcn components); compose them instead.",
+    "Do not edit frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
+    "Use English for all user-facing text."
+  ],
+  "nonGoals": [
+    "Adding new product features (e.g., notifications page) as part of this optimization pass.",
+    "Changing authentication provider (Internet Identity remains the only auth).",
+    "Introducing external databases, CDNs, or third-party performance monitoring services.",
+    "Backend API/schema changes unless strictly required for performance fixes."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
