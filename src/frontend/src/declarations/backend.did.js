@@ -66,6 +66,11 @@ export const idlService = IDL.Service({
   'getReportedComments' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
   'getReportedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
   'getUserProfile' : IDL.Func([IDL.Principal], [IDL.Opt(Profile)], ['query']),
+  'getUsernameFromPrincipal' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(IDL.Text)],
+      ['query'],
+    ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isUserAdult' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
   'removeCommentReaction' : IDL.Func([IDL.Nat], [], []),
@@ -140,6 +145,11 @@ export const idlFactory = ({ IDL }) => {
     'getReportedComments' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
     'getReportedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
     'getUserProfile' : IDL.Func([IDL.Principal], [IDL.Opt(Profile)], ['query']),
+    'getUsernameFromPrincipal' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(IDL.Text)],
+        ['query'],
+      ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isUserAdult' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'removeCommentReaction' : IDL.Func([IDL.Nat], [], []),

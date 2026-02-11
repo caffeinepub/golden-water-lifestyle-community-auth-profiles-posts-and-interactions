@@ -5,16 +5,18 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Label } from '../components/ui/label';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Shield, ShieldCheck } from 'lucide-react';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { useGetCallerUserProfile, useSaveCallerUserProfile } from '../hooks/useQueries';
+import { useGetCallerUserProfile, useSaveCallerUserProfile, useIsCallerAdmin } from '../hooks/useQueries';
 import { LoadingSkeleton, ErrorState } from '../components/state/QueryState';
 import { Alert, AlertDescription } from '../components/ui/alert';
+import { Separator } from '../components/ui/separator';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser();
   const { data: profile, isLoading, error } = useGetCallerUserProfile();
+  const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const saveProfile = useSaveCallerUserProfile();
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
@@ -86,7 +88,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 sm:py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-6 sm:py-8 max-w-2xl space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Your Profile</CardTitle>
@@ -175,6 +177,47 @@ export default function ProfilePage() {
               )}
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Admin Status
+          </CardTitle>
+          <CardDescription>
+            View your administrative privileges
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isAdminLoading ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Checking admin status...</span>
+            </div>
+          ) : isAdmin ? (
+            <div className="flex items-center gap-3 p-4 rounded-lg bg-primary/10 border border-primary/20">
+              <ShieldCheck className="h-6 w-6 text-primary" />
+              <div>
+                <p className="font-medium text-primary">You are an administrator</p>
+                <p className="text-sm text-muted-foreground">
+                  You can delete any post or comment in the community
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                You are not currently an administrator.
+              </p>
+              <Alert>
+                <AlertDescription>
+                  Admin privileges are managed by the system. Contact support if you need administrative access.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

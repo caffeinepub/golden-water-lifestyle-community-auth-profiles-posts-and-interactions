@@ -146,6 +146,7 @@ export interface backendInterface {
     getReportedComments(): Promise<Array<Comment>>;
     getReportedPosts(): Promise<Array<Post>>;
     getUserProfile(user: Principal): Promise<Profile | null>;
+    getUsernameFromPrincipal(user: Principal): Promise<string | null>;
     isCallerAdmin(): Promise<boolean>;
     isUserAdult(user: Principal): Promise<boolean>;
     removeCommentReaction(commentId: bigint): Promise<void>;
@@ -413,6 +414,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n8(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getUsernameFromPrincipal(arg0: Principal): Promise<string | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUsernameFromPrincipal(arg0);
+                return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUsernameFromPrincipal(arg0);
+            return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async isCallerAdmin(): Promise<boolean> {
         if (this.processError) {
             try {
@@ -514,28 +529,28 @@ export class Backend implements backendInterface {
     async setCommentReaction(arg0: bigint, arg1: ReactionType): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.setCommentReaction(arg0, to_candid_ReactionType_n13(this._uploadFile, this._downloadFile, arg1));
+                const result = await this.actor.setCommentReaction(arg0, to_candid_ReactionType_n14(this._uploadFile, this._downloadFile, arg1));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.setCommentReaction(arg0, to_candid_ReactionType_n13(this._uploadFile, this._downloadFile, arg1));
+            const result = await this.actor.setCommentReaction(arg0, to_candid_ReactionType_n14(this._uploadFile, this._downloadFile, arg1));
             return result;
         }
     }
     async setPostReaction(arg0: bigint, arg1: ReactionType): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.setPostReaction(arg0, to_candid_ReactionType_n13(this._uploadFile, this._downloadFile, arg1));
+                const result = await this.actor.setPostReaction(arg0, to_candid_ReactionType_n14(this._uploadFile, this._downloadFile, arg1));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.setPostReaction(arg0, to_candid_ReactionType_n13(this._uploadFile, this._downloadFile, arg1));
+            const result = await this.actor.setPostReaction(arg0, to_candid_ReactionType_n14(this._uploadFile, this._downloadFile, arg1));
             return result;
         }
     }
@@ -580,6 +595,9 @@ function from_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Post]): Post | null {
     return value.length === 0 ? null : from_candid_Post_n5(_uploadFile, _downloadFile, value[0]);
 }
+function from_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+    return value.length === 0 ? null : value[0];
+}
 function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Image]): Image | null {
     return value.length === 0 ? null : value[0];
 }
@@ -622,8 +640,8 @@ function from_candid_variant_n10(_uploadFile: (file: ExternalBlob) => Promise<Ui
 function from_candid_vec_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Post>): Array<Post> {
     return value.map((x)=>from_candid_Post_n5(_uploadFile, _downloadFile, x));
 }
-function to_candid_ReactionType_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ReactionType): _ReactionType {
-    return to_candid_variant_n14(_uploadFile, _downloadFile, value);
+function to_candid_ReactionType_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ReactionType): _ReactionType {
+    return to_candid_variant_n15(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
@@ -631,7 +649,7 @@ function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint
 function to_candid_opt_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Image | null): [] | [_Image] {
     return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_variant_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ReactionType): {
+function to_candid_variant_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ReactionType): {
     sad: null;
 } | {
     angry: null;

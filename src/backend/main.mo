@@ -5,11 +5,8 @@ import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
-
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-
 
 actor {
   let accessControlState = AccessControl.initState();
@@ -91,6 +88,16 @@ actor {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
     profiles.get(user);
+  };
+
+  public query ({ caller }) func getUsernameFromPrincipal(user : Principal) : async ?Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can access usernames");
+    };
+    switch (profiles.get(user)) {
+      case (null) { null };
+      case (?profile) { ?profile.username };
+    };
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : Profile) : async () {

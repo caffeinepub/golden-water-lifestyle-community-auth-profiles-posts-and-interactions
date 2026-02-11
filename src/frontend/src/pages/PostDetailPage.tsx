@@ -154,13 +154,9 @@ export default function PostDetailPage() {
           {!commentsLoading && !commentsError && sortedComments.length === 0 && (
             <EmptyState message="No comments yet. Be the first to comment!" />
           )}
-          {!commentsLoading && !commentsError && sortedComments.length > 0 && (
-            <div className="space-y-4">
-              {sortedComments.map((comment) => (
-                <CommentItem key={comment.id.toString()} comment={comment} />
-              ))}
-            </div>
-          )}
+          {!commentsLoading && !commentsError && sortedComments.map((comment) => (
+            <CommentItem key={comment.id.toString()} comment={comment} />
+          ))}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useActor } from './useActor';
 import type { Post, Comment, Profile, ReactionType } from '../backend';
 import type { Image } from '../backend';
 import { useEffect, useRef } from 'react';
+import { Principal } from '@dfinity/principal';
 
 export function useGetContentGuidelines() {
   const { actor, isFetching } = useActor();
@@ -50,6 +51,44 @@ export function useSaveCallerUserProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
+  });
+}
+
+export function useIsCallerAdmin() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['isCallerAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isCallerAdmin();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 1000 * 60 * 5, // 5 minutes - admin status doesn't change often
+  });
+}
+
+export function useGetUsernameFromPrincipal(authorPrincipal: Principal | string) {
+  const { actor, isFetching } = useActor();
+  const principalText = typeof authorPrincipal === 'string' ? authorPrincipal : authorPrincipal.toString();
+
+  return useQuery<string | null>({
+    queryKey: ['username', principalText],
+    queryFn: async () => {
+      if (!actor) return null;
+      try {
+        const principal = typeof authorPrincipal === 'string' 
+          ? Principal.fromText(authorPrincipal) 
+          : authorPrincipal;
+        return await actor.getUsernameFromPrincipal(principal);
+      } catch (error) {
+        console.error('Failed to fetch username:', error);
+        return null;
+      }
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 1000 * 60 * 10, // 10 minutes - usernames don't change often
+    retry: false,
   });
 }
 
@@ -111,6 +150,22 @@ export function useCreatePost() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+}
+
+export function useDeletePost() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deletePost(postId);
+    },
+    onSuccess: (_, postId) => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post', postId.toString()] });
     },
   });
 }

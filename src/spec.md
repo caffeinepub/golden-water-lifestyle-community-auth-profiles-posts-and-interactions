@@ -1,13 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Improve frontend performance, responsiveness, and overall UX polish without changing existing features or backend behavior.
+**Goal:** Show each Community Feed post’s author username (when available) instead of a truncated principal, without requiring admin permissions.
 
 **Planned changes:**
-- Lazy-load (code-split) page routes so only the current route’s JavaScript loads on first paint, with a visible route-loading state during chunk fetch.
-- Optimize Feed rendering for long post lists by reducing unnecessary re-renders and expensive work during render while preserving current Feed behavior and UI.
-- Improve post attachment image loading in Feed and Post Detail (e.g., lazy-loading/async decode) and ensure any object/blob URLs are cleaned up to prevent leaks.
-- Standardize and smooth loading/empty/error states across Landing, Feed, Post Detail, and Comments; avoid flicker/jumps during background refresh and preserve scroll position on Feed.
-- Improve mobile responsiveness of header navigation and primary layouts so key actions remain accessible on small screens (without changing gating behavior).
+- Add a new backend query on `backend/main.mo` that takes an author `Principal` and returns the user’s public username (or null/empty if no profile exists), callable by any authenticated user with `#user` permission.
+- Update the Community Feed post header (`frontend/src/pages/FeedPage.tsx` / `frontend/src/components/posts/PostCard.tsx`) to display the resolved username, while keeping “You” for the current user.
+- Add a dedicated React Query hook in `frontend/src/hooks/useQueries.ts` to resolve usernames by principal and cache results to avoid repeated lookups while scrolling.
+- Implement fallback display text when username cannot be resolved (no profile or request failure): `User {first 8 chars of principal}...`.
 
-**User-visible outcome:** Pages load faster and feel smoother; navigation shows clear loading feedback, Feed stays responsive with many posts, images load efficiently, loading/error states are consistent, and the site is easier to use on mobile.
+**User-visible outcome:** In the Community Feed, posts show the author’s username when available (or “You” for your own posts), with a safe fallback to the current truncated principal format when a username can’t be fetched.

@@ -2,9 +2,9 @@ import { memo, useCallback, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
-import { MessageCircle, Flag, Loader2 } from 'lucide-react';
+import { MessageCircle, Flag, Loader2, Trash2 } from 'lucide-react';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { useReportPost, useSetPostReaction, useRemovePostReaction } from '../../hooks/useQueries';
+import { useReportPost, useSetPostReaction, useRemovePostReaction, useDeletePost, useIsCallerAdmin, useGetUsernameFromPrincipal } from '../../hooks/useQueries';
 import { Alert, AlertDescription } from '../ui/alert';
 import { extractErrorMessage } from '../../utils/postImages';
 import { useBackendImageUrl } from '../../hooks/useBackendImageUrl';
@@ -18,14 +18,21 @@ interface PostCardProps {
 function PostCard({ post }: PostCardProps) {
   const navigate = useNavigate();
   const { identity } = useCurrentUser();
+  const { data: isAdmin } = useIsCallerAdmin();
   const reportPost = useReportPost();
+  const deletePost = useDeletePost();
   const setReaction = useSetPostReaction();
   const removeReaction = useRemovePostReaction();
   const [reportError, setReportError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [reactionError, setReactionError] = useState<string | null>(null);
   const imageUrl = useBackendImageUrl(post.image);
 
   const isAuthor = identity?.getPrincipal().toString() === post.author.toString();
+  const canDelete = isAuthor || isAdmin;
+
+  // Fetch username only if not the author
+  const { data: username } = useGetUsernameFromPrincipal(post.author);
 
   // For now, we don't have reaction data from backend, so selectedReaction is always null
   const selectedReaction: ReactionType | null = null;
@@ -56,11 +63,30 @@ function PostCard({ post }: PostCardProps) {
     }
   }, [post.id, reportPost]);
 
+  const handleDelete = useCallback(async () => {
+    if (!window.confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
+    
+    setDeleteError(null);
+    try {
+      await deletePost.mutateAsync(post.id);
+    } catch (error: any) {
+      console.error('Failed to delete post:', error);
+      setDeleteError(extractErrorMessage(error));
+    }
+  }, [post.id, deletePost]);
+
   const handleViewComments = useCallback(() => {
     navigate({ to: '/post/$postId', params: { postId: post.id.toString() } });
   }, [navigate, post.id]);
 
   const formattedDate = new Date(Number(post.timestamp) / 1000000).toLocaleString();
+
+  // Determine display name
+  const displayName = isAuthor 
+    ? 'You' 
+    : username 
+      ? username 
+      : `User ${post.author.toString().slice(0, 8)}...`;
 
   return (
     <Card>
@@ -68,7 +94,7 @@ function PostCard({ post }: PostCardProps) {
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
-              {isAuthor ? 'You' : `User ${post.author.toString().slice(0, 8)}...`}
+              {displayName}
             </p>
             <p className="text-xs text-muted-foreground">{formattedDate}</p>
           </div>
@@ -95,52 +121,68 @@ function PostCard({ post }: PostCardProps) {
             <AlertDescription>{reportError}</AlertDescription>
           </Alert>
         )}
+        {deleteError && (
+          <Alert variant="destructive">
+            <AlertDescription>{deleteError}</AlertDescription>
+          </Alert>
+        )}
         {reactionError && (
           <Alert variant="destructive">
             <AlertDescription>{reactionError}</AlertDescription>
           </Alert>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <ReactionBar
           selectedReaction={selectedReaction}
           onReactionClick={handleReactionClick}
           disabled={setReaction.isPending || removeReaction.isPending}
-          isPending={setReaction.isPending || removeReaction.isPending}
         />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleViewComments}
-          className="gap-2"
-        >
-          <MessageCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">Comments</span>
-        </Button>
-        {!isAuthor && (
+        <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={handleReport}
-            disabled={reportPost.isPending}
-            className="gap-2"
+            onClick={handleViewComments}
+            className="flex-1 sm:flex-initial"
           >
-            {reportPost.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Flag className="h-4 w-4" />
-            )}
-            <span className="hidden sm:inline">Report</span>
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Comments
           </Button>
-        )}
+          {canDelete ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deletePost.isPending}
+              className="flex-1 sm:flex-initial text-destructive hover:text-destructive"
+            >
+              {deletePost.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="mr-2 h-4 w-4" />
+              )}
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReport}
+              disabled={reportPost.isPending}
+              className="flex-1 sm:flex-initial"
+            >
+              {reportPost.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Flag className="mr-2 h-4 w-4" />
+              )}
+              Report
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );
 }
 
-// Memoize with shallow comparison for Post object
-export default memo(PostCard, (prevProps, nextProps) => {
-  return prevProps.post.id === nextProps.post.id &&
-         prevProps.post.reports === nextProps.post.reports &&
-         prevProps.post.content === nextProps.post.content;
-});
+export default memo(PostCard);

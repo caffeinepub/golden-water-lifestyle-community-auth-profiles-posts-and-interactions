@@ -1,110 +1,73 @@
 {
   "kind": "build_request",
-  "title": "Optimize website performance, responsiveness, and UX polish",
+  "title": "Show post author username on the Community Feed",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-31",
-      "text": "Improve initial load performance by code-splitting page routes so the JavaScript bundle loads only the current route on first paint (Landing page first, then Feed/Post Detail/Profile when navigated).",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Add a backend query method that lets any authenticated user resolve a post author principal to a public display name (username), so the frontend can show usernames on the Community Feed without requiring admin permissions.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "optimize the website"
+          "Make sure the username appears on the community feed."
         ]
       },
       "acceptanceCriteria": [
-        "Navigating between routes still works as before (/, /feed, /post/:postId, /profile) with no runtime errors.",
-        "The initial route no longer requires importing all page modules up-front (routes are lazy-loaded).",
-        "A loading state is shown while a route chunk is being fetched (no blank screen)."
+        "A new query endpoint exists on the main actor (backend/main.mo) that accepts a user Principal and returns the user's username (or null/empty when no profile exists).",
+        "The endpoint is callable by users with #user permission (i.e., it does not require the caller to be the same principal and does not require admin).",
+        "Existing endpoints and authorization rules for private profile access (e.g., getUserProfile) remain unchanged."
       ]
     },
     {
-      "id": "REQ-32",
-      "text": "Optimize feed rendering performance for long lists of posts by reducing unnecessary re-renders and expensive work during render (e.g., sorting/mapping and per-item state) while keeping existing functionality and UI intact.",
+      "id": "REQ-2",
+      "text": "Update the Community Feed post UI to display the author's username (from the profile) instead of the truncated principal string currently shown in each post header.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "optimize the website"
+          "Make sure the username appears on the community feed."
         ]
       },
       "acceptanceCriteria": [
-        "With a large number of posts, scrolling the Feed page remains smooth and interactive controls (reactions, report, comments navigation) remain responsive.",
-        "No visible behavior regressions in Feed features: creating posts (with/without image), refresh, auto-refresh, reaction toggling, reporting.",
-        "No React warnings/errors are introduced."
+        "In the feed post list (frontend/src/pages/FeedPage.tsx using frontend/src/components/posts/PostCard.tsx), each post header shows the author's username when available.",
+        "If the current user is the author, the label remains \"You\".",
+        "If the username cannot be resolved (no profile or request failure), the UI falls back to the existing display format: \"User {first 8 chars of principal}...\".",
+        "Username lookups are cached (via React Query) so scrolling the feed does not trigger repeated network calls for the same author principal."
       ]
     },
     {
-      "id": "REQ-33",
-      "text": "Improve image loading performance in the feed and post detail views by ensuring post attachment images do not block rendering and are loaded efficiently (e.g., lazy-loading, async decoding) without changing the backend image format.",
+      "id": "REQ-3",
+      "text": "Add a dedicated React Query hook for resolving a public username by principal, and use it in PostCard when rendering the Community Feed author line.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-6"
         ],
         "quotes": [
-          "optimize the website"
+          "Make sure the username appears on the community feed."
         ]
       },
       "acceptanceCriteria": [
-        "Post images in the feed are lazy-loaded (offscreen images do not load immediately).",
-        "Images still render correctly for posts with an attachment and do not render for posts without an attachment.",
-        "No memory leaks from blob/object URLs during navigation or re-render (object URLs are revoked appropriately)."
-      ]
-    },
-    {
-      "id": "REQ-34",
-      "text": "Improve perceived performance and UX polish across primary pages by ensuring loading, empty, and error states are consistent and non-jarring during background refetch/auto-refresh (especially on the Feed page).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-3"
-        ],
-        "quotes": [
-          "optimize the website"
-        ]
-      },
-      "acceptanceCriteria": [
-        "During background refresh/auto-refresh on Feed, the user’s scroll position is preserved and the UI does not flicker or jump.",
-        "Loading states are visible and consistent (no blank sections) for: Landing guidelines fetch, Feed posts fetch, Post detail fetch, comments fetch.",
-        "Errors are shown in clear English and do not leave the UI in a stuck/disabled state."
-      ]
-    },
-    {
-      "id": "REQ-35",
-      "text": "Improve responsiveness and mobile usability of the header navigation and main page layouts so all primary actions remain accessible on small screens.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-3"
-        ],
-        "quotes": [
-          "optimize the website"
-        ]
-      },
-      "acceptanceCriteria": [
-        "On small screens, the header navigation does not overflow or clip; users can still reach Home, Feed (when signed in), Profile (when signed in), and Sign in/Sign out.",
-        "Primary buttons and inputs on Feed/Post Detail/Profile remain usable on mobile (no horizontal scrolling, reasonable spacing).",
-        "No changes are made to the 18+ gating and profile gating behavior (they still block protected routes as before)."
+        "A new hook is added in frontend/src/hooks/useQueries.ts to fetch a username by Principal (calling the new backend method).",
+        "PostCard uses the new hook to render the display name, without changing any files under frontend/src/components/ui or other immutable paths.",
+        "The feed remains functional when logged in and viewing posts, with no new console errors caused by the username lookup."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
-    "Do not edit files under frontend/src/components/ui (shadcn components); compose them instead.",
-    "Do not edit frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
-    "Use English for all user-facing text."
+    "Backend must remain a single-actor Motoko canister with logic in backend/main.mo.",
+    "Do not edit immutable frontend paths listed in SYSTEM_CONTEXT (compose existing UI components instead).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Adding new product features (e.g., notifications page) as part of this optimization pass.",
-    "Changing authentication provider (Internet Identity remains the only auth).",
-    "Introducing external databases, CDNs, or third-party performance monitoring services.",
-    "Backend API/schema changes unless strictly required for performance fixes."
+    "Do not change how comments display author identity (unless separately requested).",
+    "Do not implement third-party auth or identity providers beyond Internet Identity.",
+    "Do not redesign the feed layout beyond what is necessary to show the username."
   ],
   "imageRequirements": {
     "required": [],

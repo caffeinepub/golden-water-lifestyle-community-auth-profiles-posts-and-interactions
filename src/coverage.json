@@ -1,115 +1,60 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T08:15:08.200Z",
+  "generatedAt": "2026-02-09T08:50:56.944Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-31",
-        "summary": "Improve initial load performance by code-splitting page routes so the JavaScript bundle loads only the current route on first paint (Landing page first, then Feed/Post Detail/Profile when navigated).",
+        "id": "REQ-1",
+        "summary": "Add a backend query method that lets any authenticated user resolve a post author principal to a public display name (username), so the frontend can show usernames on the Community Feed without requiring admin permissions.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Update the Community Feed post UI to display the author's username (from the profile) instead of the truncated principal string currently shown in each post header.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/state/RouteChunkLoading.tsx"
+          "frontend/src/components/posts/PostCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/state/RouteChunkLoading.tsx"
+          "frontend/src/components/posts/PostCard.tsx"
         ]
       },
       {
-        "id": "REQ-32",
-        "summary": "Optimize feed rendering performance for long lists of posts by reducing unnecessary re-renders and expensive work during render (e.g., sorting/mapping and per-item state) while keeping existing functionality and UI intact.",
+        "id": "REQ-3",
+        "summary": "Add a dedicated React Query hook for resolving a public username by principal, and use it in PostCard when rendering the Community Feed author line.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/components/posts/PostCard.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/posts/PostCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/components/posts/PostCard.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ]
-      },
-      {
-        "id": "REQ-33",
-        "summary": "Improve image loading performance in the feed and post detail views by ensuring post attachment images do not block rendering and are loaded efficiently (e.g., lazy-loading, async decoding) without changing the backend image format.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/posts/PostCard.tsx",
-          "frontend/src/hooks/useBackendImageUrl.ts",
-          "frontend/src/pages/FeedPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/posts/PostCard.tsx",
-          "frontend/src/hooks/useBackendImageUrl.ts",
-          "frontend/src/pages/FeedPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-34",
-        "summary": "Improve perceived performance and UX polish across primary pages by ensuring loading, empty, and error states are consistent and non-jarring during background refetch/auto-refresh (especially on the Feed page).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/state/QueryState.tsx",
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/pages/LandingPage.tsx",
-          "frontend/src/pages/PostDetailPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/state/QueryState.tsx",
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/pages/LandingPage.tsx",
-          "frontend/src/pages/PostDetailPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-35",
-        "summary": "Improve responsiveness and mobile usability of the header navigation and main page layouts so all primary actions remain accessible on small screens.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/MobileNav.tsx",
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/pages/PostDetailPage.tsx",
-          "frontend/src/pages/ProfilePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/MobileNav.tsx",
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/pages/PostDetailPage.tsx",
-          "frontend/src/pages/ProfilePage.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/posts/PostCard.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/comments/CommentItem.tsx",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/MobileNav.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
     "frontend/src/components/posts/PostCard.tsx",
-    "frontend/src/components/state/QueryState.tsx",
-    "frontend/src/components/state/RouteChunkLoading.tsx",
-    "frontend/src/hooks/useBackendImageUrl.ts",
-    "frontend/src/hooks/useCurrentUser.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/FeedPage.tsx",
-    "frontend/src/pages/LandingPage.tsx",
-    "frontend/src/pages/PostDetailPage.tsx",
-    "frontend/src/pages/ProfilePage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

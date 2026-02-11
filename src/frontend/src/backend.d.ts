@@ -63,6 +63,7 @@ export interface backendInterface {
     getReportedComments(): Promise<Array<Comment>>;
     getReportedPosts(): Promise<Array<Post>>;
     getUserProfile(user: Principal): Promise<Profile | null>;
+    getUsernameFromPrincipal(user: Principal): Promise<string | null>;
     isCallerAdmin(): Promise<boolean>;
     isUserAdult(user: Principal): Promise<boolean>;
     removeCommentReaction(commentId: bigint): Promise<void>;

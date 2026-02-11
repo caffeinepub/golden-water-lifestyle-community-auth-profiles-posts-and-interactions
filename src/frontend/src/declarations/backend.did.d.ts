@@ -60,6 +60,7 @@ export interface _SERVICE {
   'getReportedComments' : ActorMethod<[], Array<Comment>>,
   'getReportedPosts' : ActorMethod<[], Array<Post>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [Profile]>,
+  'getUsernameFromPrincipal' : ActorMethod<[Principal], [] | [string]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isUserAdult' : ActorMethod<[Principal], boolean>,
   'removeCommentReaction' : ActorMethod<[bigint], undefined>,
