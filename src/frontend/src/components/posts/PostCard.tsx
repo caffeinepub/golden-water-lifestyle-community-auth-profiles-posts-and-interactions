@@ -8,6 +8,7 @@ import { useReportPost, useSetPostReaction, useRemovePostReaction, useDeletePost
 import { Alert, AlertDescription } from '../ui/alert';
 import { extractErrorMessage } from '../../utils/postImages';
 import { useBackendImageUrl } from '../../hooks/useBackendImageUrl';
+import { useBackendExternalBlobUrl } from '../../hooks/useBackendExternalBlobUrl';
 import ReactionBar from '../reactions/ReactionBar';
 import type { Post, ReactionType } from '../../backend';
 
@@ -27,6 +28,7 @@ function PostCard({ post }: PostCardProps) {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [reactionError, setReactionError] = useState<string | null>(null);
   const imageUrl = useBackendImageUrl(post.image);
+  const videoUrl = useBackendExternalBlobUrl(post.video);
 
   const isAuthor = identity?.getPrincipal().toString() === post.author.toString();
   const canDelete = isAuthor || isAdmin;
@@ -114,6 +116,14 @@ function PostCard({ post }: PostCardProps) {
             className="max-h-96 w-full object-contain rounded-lg border"
             loading="lazy"
             decoding="async"
+          />
+        )}
+        {videoUrl && (
+          <video
+            src={videoUrl}
+            controls
+            className="max-h-96 w-full rounded-lg border"
+            preload="metadata"
           />
         )}
         {reportError && (

@@ -5,10 +5,15 @@ import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Time "mo:core/Time";
+import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Storage "blob-storage/Storage";
 
+// Apply migration.
 actor {
+  include MixinStorage();
+
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -19,18 +24,14 @@ actor {
     isAdult : Bool;
   };
 
-  public type Image = {
-    data : [Nat8];
-    mimeType : Text;
-  };
-
   public type Post = {
     id : Nat;
     author : Principal;
     content : Text;
     timestamp : Int;
     reports : Nat;
-    image : ?Image;
+    image : ?Storage.ExternalBlob;
+    video : ?Storage.ExternalBlob;
   };
 
   public type Comment = {
@@ -64,17 +65,22 @@ actor {
   var postIdCounter = 0;
   var commentIdCounter = 0;
 
-  func validateImageSize(image : ?Image) {
-    let maxSize = 10 * 1024 * 1024; // 10MB in bytes
-    switch (image) {
-      case (null) {};
-      case (?img) {
-        if (img.data.size() > maxSize) {
-          Runtime.trap("Image size exceeds maximum allowed limit of 10MB.");
-        };
-      };
-    };
+  public type ModerationStatus = {
+    #active;
+    #blocked : Text;
+    #flagged : Text;
   };
+
+  public type ModerationReason = {
+    #illegalContent;
+    #copyrightInfringement;
+    #hateSpeech;
+    #underageMaterial;
+    #none;
+  };
+
+  let moderationStates = Map.empty<Nat, ModerationStatus>();
+  let moderationReasons = Map.empty<Nat, ModerationReason>();
 
   public query ({ caller }) func getCallerUserProfile() : async ?Profile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -117,11 +123,54 @@ actor {
     };
   };
 
-  public query ({ caller }) func getContentGuidelines() : async Text {
+  // Public information - accessible to everyone including guests
+  public query func getContentGuidelines() : async Text {
     "No hate speech, bullying, or illegal content. Respect each other and have fun! This is an adults-only service. By using this service you confirm that you are 18+ and agree to reject any illegal activity. Illegal activity will be reported to the authorities.";
   };
 
-  public shared ({ caller }) func createPost(content : Text, image : ?Image) : async Nat {
+  func moderateContent(content : Text) : (Bool, ModerationReason, Text) {
+    let lowerContent = content.toLower();
+
+    // Check for underage material - automatic block
+    if (lowerContent.contains(#text("underage")) or lowerContent.contains(#text("minor"))) {
+      return (true, #underageMaterial, "Upload blocked: Contains underage explicit material.");
+    };
+
+    // Check for illegal content - automatic block
+    if (lowerContent.contains(#text("illegal"))) {
+      return (true, #illegalContent, "Upload blocked: Contains illegal content.");
+    };
+
+    // Check for copyright - automatic block on keyword match
+    if (lowerContent.contains(#text("copyright")) or lowerContent.contains(#text("pirated"))) {
+      return (true, #copyrightInfringement, "Upload blocked: Copyright violation detected.");
+    };
+
+    // Check for hate speech - FLAG but don't block (borderline cases)
+    if (lowerContent.contains(#text("hate"))) {
+      return (false, #hateSpeech, "Flagged for potential hate speech");
+    };
+
+    (false, #none, "Content is clean");
+  };
+
+  func isPostBlocked(postId : Nat) : Bool {
+    switch (moderationStates.get(postId)) {
+      case (null) { false };
+      case (?status) {
+        switch (status) {
+          case (#blocked(_)) { true };
+          case (_) { false };
+        };
+      };
+    };
+  };
+
+  public shared ({ caller }) func createPost(
+    content : Text,
+    image : ?Storage.ExternalBlob,
+    video : ?Storage.ExternalBlob,
+  ) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create posts");
     };
@@ -141,7 +190,12 @@ actor {
       };
     };
 
-    validateImageSize(image);
+    let (shouldBlock, reason, reasonText) = moderateContent(content);
+
+    // Block if moderation says to block
+    if (shouldBlock) {
+      Runtime.trap(reasonText);
+    };
 
     let postId = postIdCounter;
     postIdCounter += 1;
@@ -153,9 +207,20 @@ actor {
       timestamp = Time.now();
       reports = 0;
       image;
+      video;
     };
 
     posts.add(postId, newPost);
+
+    // Set moderation state based on reason
+    moderationStates.add(
+      postId,
+      switch (reason) {
+        case (#hateSpeech) { #flagged("Flagged for potential hate speech") };
+        case (_) { #active };
+      },
+    );
+    moderationReasons.add(postId, reason);
     postReactions.add(postId, Map.empty<Principal, ReactionType>());
     postId;
   };
@@ -164,6 +229,12 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view posts");
     };
+
+    // Non-admins cannot see blocked posts
+    if (not (AccessControl.isAdmin(accessControlState, caller)) and isPostBlocked(postId)) {
+      return null;
+    };
+
     posts.get(postId);
   };
 
@@ -171,15 +242,30 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view posts");
     };
-    posts.values().toArray();
+
+    let isAdmin = AccessControl.isAdmin(accessControlState, caller);
+
+    // Filter out blocked posts for non-admins
+    if (isAdmin) {
+      posts.values().toArray();
+    } else {
+      posts.values().toArray().filter<Post>(
+        func(post : Post) : Bool {
+          not isPostBlocked(post.id);
+        }
+      );
+    };
   };
 
-  public shared ({ caller }) func updatePost(postId : Nat, content : Text, image : ?Image) : async Bool {
+  public shared ({ caller }) func updatePost(
+    postId : Nat,
+    content : Text,
+    image : ?Storage.ExternalBlob,
+    video : ?Storage.ExternalBlob,
+  ) : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update posts");
     };
-
-    validateImageSize(image);
 
     switch (posts.get(postId)) {
       case (null) { Runtime.trap("Post does not exist") };
@@ -187,8 +273,32 @@ actor {
         if (post.author != caller) {
           Runtime.trap("Unauthorized: Can only update your own posts");
         };
-        let updatedPost = { post with content; image };
+
+        // Non-admins cannot update blocked posts
+        if (not (AccessControl.isAdmin(accessControlState, caller)) and isPostBlocked(postId)) {
+          Runtime.trap("Cannot update blocked post");
+        };
+
+        // Re-check moderation on updated content
+        let (shouldBlock, reason, reasonText) = moderateContent(content);
+
+        if (shouldBlock) {
+          Runtime.trap(reasonText);
+        };
+
+        let updatedPost = { post with content; image; video };
         posts.add(postId, updatedPost);
+
+        // Update moderation state based on new content
+        moderationStates.add(
+          postId,
+          switch (reason) {
+            case (#hateSpeech) { #flagged("Flagged for potential hate speech") };
+            case (_) { #active };
+          },
+        );
+        moderationReasons.add(postId, reason);
+
         true;
       };
     };
@@ -207,6 +317,8 @@ actor {
         };
         posts.remove(postId);
         postReactions.remove(postId);
+        moderationStates.remove(postId);
+        moderationReasons.remove(postId);
         true;
       };
     };
@@ -220,6 +332,11 @@ actor {
     switch (posts.get(postId)) {
       case (null) { Runtime.trap("Post does not exist") };
       case (?_post) {
+        // Non-admins cannot react to blocked posts
+        if (not (AccessControl.isAdmin(accessControlState, caller)) and isPostBlocked(postId)) {
+          Runtime.trap("Cannot react to blocked post");
+        };
+
         switch (postReactions.get(postId)) {
           case (null) {
             let newReactions = Map.empty<Principal, ReactionType>();
@@ -278,6 +395,11 @@ actor {
     switch (posts.get(postId)) {
       case (null) { Runtime.trap("Post does not exist") };
       case (?_post) {
+        // Non-admins cannot comment on blocked posts
+        if (not (AccessControl.isAdmin(accessControlState, caller)) and isPostBlocked(postId)) {
+          Runtime.trap("Cannot comment on blocked post");
+        };
+
         let commentId = commentIdCounter;
         commentIdCounter += 1;
 
@@ -472,6 +594,137 @@ actor {
         let updatedComment = { comment with reports = 0 };
         comments.add(commentId, updatedComment);
         true;
+      };
+    };
+  };
+
+  public query ({ caller }) func getFlaggedHateSpeechPosts() : async [(Nat, ModerationStatus)] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view flagged posts");
+    };
+    moderationStates.entries().toArray().filter<(
+      Nat,
+      ModerationStatus,
+    )>(
+      func(entry) {
+        switch (entry.1) {
+          case (#flagged(_)) { true };
+          case (_) { false };
+        };
+      }
+    );
+  };
+
+  public query ({ caller }) func getBlockedPosts() : async [Nat] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view blocked posts");
+    };
+    moderationStates.entries().toArray().filter<(
+      Nat,
+      ModerationStatus,
+    )>(
+      func(entry) { switch (entry.1) { case (#blocked(_)) { true }; case (_) { false } } }
+    ).map<(Nat, ModerationStatus), Nat>(func(entry) { entry.0 });
+  };
+
+  public shared ({ caller }) func manualBlockPost(postId : Nat) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can block posts");
+    };
+    switch (posts.get(postId)) {
+      case (null) { Runtime.trap("Post does not exist") };
+      case (?_post) {
+        moderationStates.add(postId, #blocked("Manual copyright block"));
+        true;
+      };
+    };
+  };
+
+  public shared ({ caller }) func unblockPost(postId : Nat) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can unblock posts");
+    };
+    switch (moderationStates.get(postId)) {
+      case (null) { Runtime.trap("Post does not exist") };
+      case (?status) {
+        moderationStates.add(postId, #active);
+        true;
+      };
+    };
+  };
+
+  public shared ({ caller }) func clearFlaggedPost(postId : Nat) : async Bool {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can clear flagged posts");
+    };
+    switch (moderationStates.get(postId)) {
+      case (null) { Runtime.trap("Post does not exist") };
+      case (?status) {
+        switch (status) {
+          case (#flagged(_)) {
+            moderationStates.add(postId, #active);
+            true;
+          };
+          case (_) {
+            Runtime.trap("Post is not flagged");
+          };
+        };
+      };
+    };
+  };
+
+  public query ({ caller }) func getModerationStatus(postId : Nat) : async ModerationStatus {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view moderation status");
+    };
+    switch (moderationStates.get(postId)) {
+      case (null) { #active };
+      case (?status) { status };
+    };
+  };
+
+  public query ({ caller }) func getReportedPostsAdminView() : async [Post] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can access reported posts");
+    };
+
+    posts.values().toArray().filter<Post>(
+      func(post) { post.reports > 0 }
+    );
+  };
+
+  public query ({ caller }) func getReportedCommentsAdminView() : async [Comment] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can access reported comments");
+    };
+
+    comments.values().toArray().filter<Comment>(
+      func(comment) { comment.reports > 0 }
+    );
+  };
+
+  public shared ({ caller }) func clearAllPostReports() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can clear reports");
+    };
+
+    for ((postId, post) in posts.entries()) {
+      if (post.reports > 0) {
+        let updatedPost = { post with reports = 0 };
+        posts.add(postId, updatedPost);
+      };
+    };
+  };
+
+  public shared ({ caller }) func clearAllCommentReports() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can clear reports");
+    };
+
+    for ((commentId, comment) in comments.entries()) {
+      if (comment.reports > 0) {
+        let updatedComment = { comment with reports = 0 };
+        comments.add(commentId, updatedComment);
       };
     };
   };

@@ -5,6 +5,7 @@ import LoginButton from '../Auth/LoginButton';
 import ProfileGate from '../profile/ProfileGate';
 import AgeAcknowledgementGate from '../age/AgeAcknowledgementGate';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { useIsCallerAdmin } from '../../hooks/useQueries';
 import { useState } from 'react';
 import MobileNav from './MobileNav';
 import { Button } from '../ui/button';
@@ -15,6 +16,7 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { isAuthenticated } = useCurrentUser();
+  const { data: isAdmin } = useIsCallerAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -37,6 +39,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   >
                     Home
                   </Link>
+                  <Link
+                    to="/tips"
+                    className="text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    Tips
+                  </Link>
                   {isAuthenticated && (
                     <>
                       <Link
@@ -51,6 +59,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       >
                         Profile
                       </Link>
+                      {isAdmin && (
+                        <Link
+                          to="/admin"
+                          className="text-sm font-medium hover:text-primary transition-colors"
+                        >
+                          Admin
+                        </Link>
+                      )}
                     </>
                   )}
                   <LoginButton />
@@ -89,11 +105,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-xs sm:text-sm">
-                  <span>© 2026. Built with</span>
+                  <span>© {new Date().getFullYear()}. Built with</span>
                   <span className="text-red-500">♥</span>
                   <span>using</span>
                   <a
-                    href="https://caffeine.ai"
+                    href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 hover:text-primary transition-colors font-medium"

@@ -38,6 +38,9 @@
         --sidebar-accent-foreground: 0.30 0.03 35;
         --sidebar-border: 0.88 0.04 48;
         --sidebar-ring: 0.65 0.15 55;
+        /* Moderation alert colors - warm amber/red for warnings */
+        --moderation-alert: 0.75 0.16 40;
+        --moderation-alert-foreground: 0.20 0.02 35;
     }
 
     .dark {
@@ -74,6 +77,9 @@
         --sidebar-accent-foreground: 0.95 0.02 50;
         --sidebar-border: 0.32 0.02 36;
         --sidebar-ring: 0.75 0.18 50;
+        /* Moderation alert colors for dark mode */
+        --moderation-alert: 0.65 0.14 45;
+        --moderation-alert-foreground: 0.98 0.02 45;
     }
 
     * {
@@ -91,6 +97,21 @@
     }
     
     .dark .hero-gradient {
-        background: linear-gradient(135deg, oklch(0.30 0.04 40) 0%, oklch(0.22 0.03 35) 100%);
+        background: linear-gradient(135deg, oklch(0.35 0.06 45) 0%, oklch(0.25 0.04 40) 100%);
+    }
+    
+    /* Moderation alert styling with warm amber/red semantics */
+    .moderation-alert {
+        @apply border-2;
+        border-color: oklch(var(--moderation-alert));
+        background-color: oklch(var(--moderation-alert) / 0.1);
+    }
+    
+    .moderation-alert svg {
+        color: oklch(var(--moderation-alert));
+    }
+    
+    .moderation-alert [class*="AlertDescription"] {
+        color: oklch(var(--moderation-alert-foreground));
     }
 }

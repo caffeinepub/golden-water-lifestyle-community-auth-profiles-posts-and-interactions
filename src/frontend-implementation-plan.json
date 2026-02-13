@@ -1,43 +1,73 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Show post author username on the Community Feed (frontend)",
+  "title": "Dedicated Tips page (drinking-water tips) with navigation access",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Display each post author's username on the Community Feed post header, with correct fallbacks and caching.",
+      "id": "REQ-1",
+      "summary": "Add a new lazy-loaded /tips route and register it in the TanStack Router route tree.",
       "acceptanceCriteria": [
-        "In the feed post list (frontend/src/pages/FeedPage.tsx using frontend/src/components/posts/PostCard.tsx), each post header shows the author's username when available.",
-        "If the current user is the author, the label remains \"You\".",
-        "If the username cannot be resolved (no profile or request failure), the UI falls back to the existing display format: \"User {first 8 chars of principal}...\".",
-        "Username lookups are cached (via React Query) so scrolling the feed does not trigger repeated network calls for the same author principal."
+        "Navigating to /tips renders a Tips page without errors.",
+        "The page is code-split (lazy-loaded) consistently with other non-landing pages (e.g., FeedPage).",
+        "The new route is included in the router's routeTree (frontend/src/App.tsx)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/posts/PostCard.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Replace the current truncated-principal author label with a username-aware label: keep \"You\" when the viewer is the author, otherwise use the new React Query username-resolver hook to render the author's username when available, and fall back to the existing \"User {first 8 chars}...\" format when missing or on failure. Ensure rendering remains stable while the lookup is loading (e.g., show fallback until username resolves) and does not introduce new console errors. Use the existing authenticated actor pattern provided by the authorization component (Internet Identity + actor via hooks) to support authenticated calls; Verify the component's usage instructions before implementing."
+          "description": "Register a new \"/tips\" route in the TanStack Router routeTree, using React.lazy + Suspense like other non-landing pages to ensure consistent code-splitting behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement a readable, responsive Tips page UI that displays the provided hydration tips in English using existing UI components and Tailwind styling.",
+      "acceptanceCriteria": [
+        "The Tips page displays the following tips as a list:\n- Drink when you feel thirsty.\n- Keep a reusable water bottle with you.\n- Start your day with a glass of water.\n- Add lemon, cucumber or berries for flavor.\n- Choose water over sugary drinks.\n- Eat water‑rich foods like melon or cucumbers.\n- Aim for pale‑yellow urine as a hydration guide.\n- Sip water during meals.\n- Set small reminders if you forget to drink.",
+        "The page has a clear page title (e.g., \"Hydration Tips\") and uses consistent spacing/typography with the rest of the site.",
+        "The page renders well on mobile and desktop widths (no horizontal overflow; text remains legible)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/TipsPage.tsx",
+          "operation": "create",
+          "description": "Create the Tips page view with an English title (e.g., \"Hydration Tips\") and a responsive layout that renders the provided tips as a readable list using existing UI components (e.g., Card) and Tailwind utility classes (no changes to frontend/src/components/ui)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add a dedicated React Query hook to resolve a public username by principal and use it from PostCard.",
+      "summary": "Add public navigation links to /tips in both the desktop header navigation and the mobile navigation drawer.",
       "acceptanceCriteria": [
-        "A new hook is added in frontend/src/hooks/useQueries.ts to fetch a username by Principal (calling the new backend method).",
-        "PostCard uses the new hook to render the display name, without changing any files under frontend/src/components/ui or other immutable paths.",
-        "The feed remains functional when logged in and viewing posts, with no new console errors caused by the username lookup."
+        "A \"Tips\" link is visible in the desktop navigation and navigates to /tips.",
+        "A \"Tips\" link is visible in the mobile navigation drawer and navigates to /tips, closing the drawer after navigation.",
+        "The Tips link does not require authentication (it is available regardless of login state)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add a new React Query hook (e.g., useGetUsernameFromPrincipal) that accepts an author Principal (or its string form), calls the backend actor capability getUsernameFromPrincipal, and caches results by a stable queryKey (e.g., ['username', principalText]). Configure it to avoid repeated calls during feed scrolling (reasonable staleTime/cacheTime) and to handle missing actor/auth gracefully (disabled until actor available; on failure return null via query error handling so the UI can fall back). This hook should use the existing actor plumbing from core-infrastructure/useActor and the app's authorization flow; Verify the component's usage instructions before implementing."
+          "description": "Add a \"Tips\" Link to the desktop header navigation that is always visible (not gated by authentication/admin state) and routes to \"/tips\"."
         },
         {
-          "path": "frontend/src/components/posts/PostCard.tsx",
+          "path": "frontend/src/components/layout/MobileNav.tsx",
           "operation": "modify",
-          "description": "Wire PostCard to import and use the new username-resolver hook from frontend/src/hooks/useQueries.ts when rendering the author line (skipping the lookup when isAuthor is true). Keep all changes within PostCard (do not modify frontend/src/components/ui/*). Verify the component's usage instructions before implementing."
+          "description": "Add a \"Tips\" Link to the mobile navigation drawer that is always visible (not gated by authentication/admin state) and calls onClose on click so the drawer closes after navigating to \"/tips\"."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Style the Tips page to match the existing warm “Golden Water” aesthetic using existing Tailwind theme tokens and layout patterns.",
+      "acceptanceCriteria": [
+        "The Tips page uses the existing design system primitives (Tailwind + existing UI components) and does not introduce a conflicting color palette.",
+        "The page looks visually integrated with the current LandingPage/AppLayout styling (cards, typography, spacing, and background treatments align)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/TipsPage.tsx",
+          "operation": "modify",
+          "description": "Refine Tips page styling to align with the existing Golden Water theme (use existing Tailwind theme tokens/classes such as background/card/muted/primary, consistent container widths, spacing, and typography), keeping the page visually consistent with AppLayout/LandingPage patterns."
         }
       ]
     }

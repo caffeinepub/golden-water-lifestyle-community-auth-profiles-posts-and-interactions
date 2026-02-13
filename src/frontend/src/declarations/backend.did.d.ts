@@ -18,14 +18,18 @@ export interface Comment {
   'reports' : bigint,
   'postId' : bigint,
 }
-export interface Image { 'data' : Uint8Array, 'mimeType' : string }
+export type ExternalBlob = Uint8Array;
+export type ModerationStatus = { 'active' : null } |
+  { 'blocked' : string } |
+  { 'flagged' : string };
 export interface Post {
   'id' : bigint,
   'content' : string,
+  'video' : [] | [ExternalBlob],
   'author' : Principal,
   'timestamp' : bigint,
   'reports' : bigint,
-  'image' : [] | [Image],
+  'image' : [] | [ExternalBlob],
 }
 export interface Profile {
   'bio' : string,
@@ -41,28 +45,69 @@ export type ReactionType = { 'sad' : null } |
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'clearAllCommentReports' : ActorMethod<[], undefined>,
+  'clearAllPostReports' : ActorMethod<[], undefined>,
   'clearCommentReports' : ActorMethod<[bigint], boolean>,
+  'clearFlaggedPost' : ActorMethod<[bigint], boolean>,
   'clearPostReports' : ActorMethod<[bigint], boolean>,
   'createComment' : ActorMethod<[bigint, string], bigint>,
-  'createPost' : ActorMethod<[string, [] | [Image]], bigint>,
+  'createPost' : ActorMethod<
+    [string, [] | [ExternalBlob], [] | [ExternalBlob]],
+    bigint
+  >,
   'deleteComment' : ActorMethod<[bigint], boolean>,
   'deletePost' : ActorMethod<[bigint], boolean>,
   'getAllPosts' : ActorMethod<[], Array<Post>>,
+  'getBlockedPosts' : ActorMethod<[], Array<bigint>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [Profile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getComment' : ActorMethod<[bigint], [] | [Comment]>,
   'getContentGuidelines' : ActorMethod<[], string>,
+  'getFlaggedHateSpeechPosts' : ActorMethod<
+    [],
+    Array<[bigint, ModerationStatus]>
+  >,
+  'getModerationStatus' : ActorMethod<[bigint], ModerationStatus>,
   'getPost' : ActorMethod<[bigint], [] | [Post]>,
   'getPostComments' : ActorMethod<[bigint], Array<Comment>>,
   'getReportedComments' : ActorMethod<[], Array<Comment>>,
+  'getReportedCommentsAdminView' : ActorMethod<[], Array<Comment>>,
   'getReportedPosts' : ActorMethod<[], Array<Post>>,
+  'getReportedPostsAdminView' : ActorMethod<[], Array<Post>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [Profile]>,
   'getUsernameFromPrincipal' : ActorMethod<[Principal], [] | [string]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isUserAdult' : ActorMethod<[Principal], boolean>,
+  'manualBlockPost' : ActorMethod<[bigint], boolean>,
   'removeCommentReaction' : ActorMethod<[bigint], undefined>,
   'removePostReaction' : ActorMethod<[bigint], undefined>,
   'reportComment' : ActorMethod<[bigint], boolean>,
@@ -70,8 +115,12 @@ export interface _SERVICE {
   'saveCallerUserProfile' : ActorMethod<[Profile], undefined>,
   'setCommentReaction' : ActorMethod<[bigint, ReactionType], undefined>,
   'setPostReaction' : ActorMethod<[bigint, ReactionType], undefined>,
+  'unblockPost' : ActorMethod<[bigint], boolean>,
   'updateComment' : ActorMethod<[bigint, string], boolean>,
-  'updatePost' : ActorMethod<[bigint, string, [] | [Image]], boolean>,
+  'updatePost' : ActorMethod<
+    [bigint, string, [] | [ExternalBlob], [] | [ExternalBlob]],
+    boolean
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

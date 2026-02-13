@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { X } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '../ui/sheet';
 import LoginButton from '../Auth/LoginButton';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { useIsCallerAdmin } from '../../hooks/useQueries';
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ interface MobileNavProps {
 
 export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
   const { isAuthenticated } = useCurrentUser();
+  const { data: isAdmin } = useIsCallerAdmin();
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
@@ -31,6 +32,13 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
           >
             Home
           </Link>
+          <Link
+            to="/tips"
+            onClick={onClose}
+            className="text-base font-medium hover:text-primary transition-colors py-2"
+          >
+            Tips
+          </Link>
           {isAuthenticated && (
             <>
               <Link
@@ -47,6 +55,15 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
               >
                 Profile
               </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={onClose}
+                  className="text-base font-medium hover:text-primary transition-colors py-2"
+                >
+                  Admin
+                </Link>
+              )}
             </>
           )}
           <div className="pt-4 border-t">

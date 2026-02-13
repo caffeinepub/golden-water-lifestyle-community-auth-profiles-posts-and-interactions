@@ -1,24 +1,40 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Website project to add a dedicated Tips page containing drinking/water tips content.",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-community-feed-post-ui-to-display-the-author-s-username-from-the-profile-instead-of-the-truncated-principal-string-currently-shown-in-each-post-header",
-      "title": "Update the Community Feed post UI to display the author's username (from the profile) instead of the truncated principal string currently shown in each post header.",
+      "id": "feature-create-a-new-dedicated-tips-page-route-at-tips-and-add-it-to-the-tanstack-router-route-tree-so-it-is-accessible-as-a-normal-page-in-the-spa",
+      "title": "Create a new dedicated Tips page route at \"/tips\" and add it to the TanStack Router route tree so it is accessible as a normal page in the SPA.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-tips-page-ui-containing-the-drinking-water-tips-content-as-a-readable-responsive-layout-using-existing-ui-components-and-tailwind-styling-with-all-user-facing-text-in-english",
+      "title": "Implement the Tips page UI containing the drinking-water tips content as a readable, responsive layout using existing UI components and Tailwind styling, with all user-facing text in English.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-dedicated-react-query-hook-for-resolving-a-public-username-by-principal-and-use-it-in-postcard-when-rendering-the-community-feed-author-line",
-      "title": "Add a dedicated React Query hook for resolving a public username by principal, and use it in PostCard when rendering the Community Feed author line.",
+      "id": "feature-add-navigation-access-to-the-tips-page-from-the-app-s-header-navigation-desktop-and-mobile-menu-so-users-can-reach-tips-easily",
+      "title": "Add navigation access to the Tips page from the app’s header navigation (desktop) and mobile menu so users can reach \"/tips\" easily.",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-cohesive-visual-theme-for-the-new-tips-page-that-matches-the-existing-site-s-warm-golden-water-aesthetic-warm-gold-amber-neutrals-and-keep-styling-consistent-with-the-current-layout-components",
+      "title": "Apply a cohesive visual theme for the new Tips page that matches the existing site’s warm “Golden Water” aesthetic (warm gold/amber neutrals), and keep styling consistent with the current layout components.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -26,20 +42,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Display the username on the community feed",
+      "summary": "Create a new dedicated “Tips” page on the website and add the drinking-water tips content to it.",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a backend query method that lets any authenticated user resolve a post author principal to a public display name (username), so the frontend can show usernames on the Community Feed without requiring admin permissions.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
-  "projectName": "Show post author username on the Community Feed",
+  "projectName": "Add dedicated Tips page with drinking-water tips",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

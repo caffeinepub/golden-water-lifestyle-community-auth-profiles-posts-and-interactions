@@ -8,22 +8,31 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const Image = IDL.Record({
-  'data' : IDL.Vec(IDL.Nat8),
-  'mimeType' : IDL.Text,
-});
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
 export const Post = IDL.Record({
   'id' : IDL.Nat,
   'content' : IDL.Text,
+  'video' : IDL.Opt(ExternalBlob),
   'author' : IDL.Principal,
   'timestamp' : IDL.Int,
   'reports' : IDL.Nat,
-  'image' : IDL.Opt(Image),
+  'image' : IDL.Opt(ExternalBlob),
 });
 export const Profile = IDL.Record({
   'bio' : IDL.Text,
@@ -39,6 +48,11 @@ export const Comment = IDL.Record({
   'reports' : IDL.Nat,
   'postId' : IDL.Nat,
 });
+export const ModerationStatus = IDL.Variant({
+  'active' : IDL.Null,
+  'blocked' : IDL.Text,
+  'flagged' : IDL.Text,
+});
 export const ReactionType = IDL.Variant({
   'sad' : IDL.Null,
   'angry' : IDL.Null,
@@ -48,23 +62,65 @@ export const ReactionType = IDL.Variant({
 });
 
 export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'clearAllCommentReports' : IDL.Func([], [], []),
+  'clearAllPostReports' : IDL.Func([], [], []),
   'clearCommentReports' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+  'clearFlaggedPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'clearPostReports' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'createComment' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
-  'createPost' : IDL.Func([IDL.Text, IDL.Opt(Image)], [IDL.Nat], []),
+  'createPost' : IDL.Func(
+      [IDL.Text, IDL.Opt(ExternalBlob), IDL.Opt(ExternalBlob)],
+      [IDL.Nat],
+      [],
+    ),
   'deleteComment' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'deletePost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+  'getBlockedPosts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(Profile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getComment' : IDL.Func([IDL.Nat], [IDL.Opt(Comment)], ['query']),
   'getContentGuidelines' : IDL.Func([], [IDL.Text], ['query']),
+  'getFlaggedHateSpeechPosts' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Nat, ModerationStatus))],
+      ['query'],
+    ),
+  'getModerationStatus' : IDL.Func([IDL.Nat], [ModerationStatus], ['query']),
   'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(Post)], ['query']),
   'getPostComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
   'getReportedComments' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
+  'getReportedCommentsAdminView' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
   'getReportedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+  'getReportedPostsAdminView' : IDL.Func([], [IDL.Vec(Post)], ['query']),
   'getUserProfile' : IDL.Func([IDL.Principal], [IDL.Opt(Profile)], ['query']),
   'getUsernameFromPrincipal' : IDL.Func(
       [IDL.Principal],
@@ -73,6 +129,7 @@ export const idlService = IDL.Service({
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isUserAdult' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+  'manualBlockPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'removeCommentReaction' : IDL.Func([IDL.Nat], [], []),
   'removePostReaction' : IDL.Func([IDL.Nat], [], []),
   'reportComment' : IDL.Func([IDL.Nat], [IDL.Bool], []),
@@ -80,29 +137,43 @@ export const idlService = IDL.Service({
   'saveCallerUserProfile' : IDL.Func([Profile], [], []),
   'setCommentReaction' : IDL.Func([IDL.Nat, ReactionType], [], []),
   'setPostReaction' : IDL.Func([IDL.Nat, ReactionType], [], []),
+  'unblockPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'updateComment' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
-  'updatePost' : IDL.Func([IDL.Nat, IDL.Text, IDL.Opt(Image)], [IDL.Bool], []),
+  'updatePost' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Opt(ExternalBlob), IDL.Opt(ExternalBlob)],
+      [IDL.Bool],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const Image = IDL.Record({
-    'data' : IDL.Vec(IDL.Nat8),
-    'mimeType' : IDL.Text,
-  });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
   const Post = IDL.Record({
     'id' : IDL.Nat,
     'content' : IDL.Text,
+    'video' : IDL.Opt(ExternalBlob),
     'author' : IDL.Principal,
     'timestamp' : IDL.Int,
     'reports' : IDL.Nat,
-    'image' : IDL.Opt(Image),
+    'image' : IDL.Opt(ExternalBlob),
   });
   const Profile = IDL.Record({
     'bio' : IDL.Text,
@@ -118,6 +189,11 @@ export const idlFactory = ({ IDL }) => {
     'reports' : IDL.Nat,
     'postId' : IDL.Nat,
   });
+  const ModerationStatus = IDL.Variant({
+    'active' : IDL.Null,
+    'blocked' : IDL.Text,
+    'flagged' : IDL.Text,
+  });
   const ReactionType = IDL.Variant({
     'sad' : IDL.Null,
     'angry' : IDL.Null,
@@ -127,23 +203,69 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'clearAllCommentReports' : IDL.Func([], [], []),
+    'clearAllPostReports' : IDL.Func([], [], []),
     'clearCommentReports' : IDL.Func([IDL.Nat], [IDL.Bool], []),
+    'clearFlaggedPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'clearPostReports' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'createComment' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
-    'createPost' : IDL.Func([IDL.Text, IDL.Opt(Image)], [IDL.Nat], []),
+    'createPost' : IDL.Func(
+        [IDL.Text, IDL.Opt(ExternalBlob), IDL.Opt(ExternalBlob)],
+        [IDL.Nat],
+        [],
+      ),
     'deleteComment' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'deletePost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+    'getBlockedPosts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(Profile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getComment' : IDL.Func([IDL.Nat], [IDL.Opt(Comment)], ['query']),
     'getContentGuidelines' : IDL.Func([], [IDL.Text], ['query']),
+    'getFlaggedHateSpeechPosts' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Nat, ModerationStatus))],
+        ['query'],
+      ),
+    'getModerationStatus' : IDL.Func([IDL.Nat], [ModerationStatus], ['query']),
     'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(Post)], ['query']),
     'getPostComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
     'getReportedComments' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
+    'getReportedCommentsAdminView' : IDL.Func(
+        [],
+        [IDL.Vec(Comment)],
+        ['query'],
+      ),
     'getReportedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+    'getReportedPostsAdminView' : IDL.Func([], [IDL.Vec(Post)], ['query']),
     'getUserProfile' : IDL.Func([IDL.Principal], [IDL.Opt(Profile)], ['query']),
     'getUsernameFromPrincipal' : IDL.Func(
         [IDL.Principal],
@@ -152,6 +274,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isUserAdult' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
+    'manualBlockPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'removeCommentReaction' : IDL.Func([IDL.Nat], [], []),
     'removePostReaction' : IDL.Func([IDL.Nat], [], []),
     'reportComment' : IDL.Func([IDL.Nat], [IDL.Bool], []),
@@ -159,9 +282,10 @@ export const idlFactory = ({ IDL }) => {
     'saveCallerUserProfile' : IDL.Func([Profile], [], []),
     'setCommentReaction' : IDL.Func([IDL.Nat, ReactionType], [], []),
     'setPostReaction' : IDL.Func([IDL.Nat, ReactionType], [], []),
+    'unblockPost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'updateComment' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'updatePost' : IDL.Func(
-        [IDL.Nat, IDL.Text, IDL.Opt(Image)],
+        [IDL.Nat, IDL.Text, IDL.Opt(ExternalBlob), IDL.Opt(ExternalBlob)],
         [IDL.Bool],
         [],
       ),

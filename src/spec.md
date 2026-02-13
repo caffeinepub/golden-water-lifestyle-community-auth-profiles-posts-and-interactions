@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Show each Community Feed post’s author username (when available) instead of a truncated principal, without requiring admin permissions.
+**Goal:** Add a dedicated, easy-to-find Tips page that presents drinking-water tips in a readable, responsive layout consistent with the site’s “Golden Water” visual style.
 
 **Planned changes:**
-- Add a new backend query on `backend/main.mo` that takes an author `Principal` and returns the user’s public username (or null/empty if no profile exists), callable by any authenticated user with `#user` permission.
-- Update the Community Feed post header (`frontend/src/pages/FeedPage.tsx` / `frontend/src/components/posts/PostCard.tsx`) to display the resolved username, while keeping “You” for the current user.
-- Add a dedicated React Query hook in `frontend/src/hooks/useQueries.ts` to resolve usernames by principal and cache results to avoid repeated lookups while scrolling.
-- Implement fallback display text when username cannot be resolved (no profile or request failure): `User {first 8 chars of principal}...`.
+- Add a new lazy-loaded TanStack Router route at `/tips` and include it in the app route tree.
+- Build a responsive Tips page UI with an English page title and the provided drinking-water tips rendered as a readable list using existing components and Tailwind styling.
+- Add a “Tips” navigation link to both the desktop header navigation and the mobile menu, accessible without authentication.
 
-**User-visible outcome:** In the Community Feed, posts show the author’s username when available (or “You” for your own posts), with a safe fallback to the current truncated principal format when a username can’t be fetched.
+**User-visible outcome:** Users can navigate to `/tips` (or use the “Tips” link in desktop/mobile navigation) to view hydration tips on a page that matches the existing site design.

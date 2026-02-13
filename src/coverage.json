@@ -1,60 +1,72 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T08:50:56.944Z",
+  "generatedAt": "2026-02-13T05:41:54.415Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a backend query method that lets any authenticated user resolve a post author principal to a public display name (username), so the frontend can show usernames on the Community Feed without requiring admin permissions.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Create a new dedicated Tips page route at \"/tips\" and add it to the TanStack Router route tree so it is accessible as a normal page in the SPA.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Update the Community Feed post UI to display the author's username (from the profile) instead of the truncated principal string currently shown in each post header.",
+        "summary": "Implement the Tips page UI containing the drinking-water tips content as a readable, responsive layout using existing UI components and Tailwind styling, with all user-facing text in English.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/posts/PostCard.tsx"
+          "frontend/src/pages/TipsPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/posts/PostCard.tsx"
+          "frontend/src/pages/TipsPage.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add a dedicated React Query hook for resolving a public username by principal, and use it in PostCard when rendering the Community Feed author line.",
+        "summary": "Add navigation access to the Tips page from the app’s header navigation (desktop) and mobile menu so users can reach \"/tips\" easily.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/posts/PostCard.tsx"
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/posts/PostCard.tsx"
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Apply a cohesive visual theme for the new Tips page that matches the existing site’s warm “Golden Water” aesthetic (warm gold/amber neutrals), and keep styling consistent with the current layout components.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/TipsPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/TipsPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/posts/PostCard.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/App.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/MobileNav.tsx",
+    "frontend/src/pages/TipsPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

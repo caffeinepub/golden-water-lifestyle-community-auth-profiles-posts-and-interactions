@@ -3,14 +3,18 @@ import { useNavigate } from '@tanstack/react-router';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Loader2, Send, Image as ImageIcon, X, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Loader2, Send, Image as ImageIcon, Video as VideoIcon, X, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useGetAllPosts, useCreatePost } from '../hooks/useQueries';
 import PostCard from '../components/posts/PostCard';
 import { LoadingSkeleton, ErrorState, EmptyState } from '../components/state/QueryState';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { validateImageFile, fileToBackendImage, createPreviewUrl, revokeImageUrl, extractErrorMessage } from '../utils/postImages';
-import type { Image, Post } from '../backend';
+import ModerationAlert from '../components/moderation/ModerationAlert';
+import { validateImageFile, createPreviewUrl, revokeImageUrl, fileToBackendImage } from '../utils/postImages';
+import { validateVideoFile, fileToBackendVideo, createVideoPreviewUrl, revokeVideoUrl } from '../utils/postVideos';
+import { normalizeModerationMessage, categorizeError } from '../utils/moderation';
+import type { Post } from '../backend';
+import { ExternalBlob } from '../backend';
 
 // Memoized post list to prevent re-renders during typing/background fetches
 const PostList = memo(({ posts }: { posts: Post[] }) => {
@@ -31,15 +35,20 @@ export default function FeedPage() {
   const { data: posts, isLoading, error, refetch, isFetching, isRefetching } = useGetAllPosts(true);
   const createPost = useCreatePost();
   const [content, setContent] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [selectedVideoFile, setSelectedVideoFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const [moderationError, setModerationError] = useState<string | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -50,67 +59,119 @@ export default function FeedPage() {
     }
 
     setImageError(null);
-    setSelectedFile(file);
+    setSelectedImageFile(file);
     const url = createPreviewUrl(file);
-    setPreviewUrl(url);
+    setImagePreviewUrl(url);
+  }, []);
+
+  const handleVideoSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = validateVideoFile(file);
+    if (!validation.valid) {
+      setVideoError(validation.error || 'Invalid video file');
+      return;
+    }
+
+    setVideoError(null);
+    setSelectedVideoFile(file);
+    const url = createVideoPreviewUrl(file);
+    setVideoPreviewUrl(url);
   }, []);
 
   const handleRemoveImage = useCallback(() => {
-    if (previewUrl) {
-      revokeImageUrl(previewUrl);
+    if (imagePreviewUrl) {
+      revokeImageUrl(imagePreviewUrl);
     }
-    setSelectedFile(null);
-    setPreviewUrl(null);
+    setSelectedImageFile(null);
+    setImagePreviewUrl(null);
     setImageError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
     }
-  }, [previewUrl]);
+  }, [imagePreviewUrl]);
+
+  const handleRemoveVideo = useCallback(() => {
+    if (videoPreviewUrl) {
+      revokeVideoUrl(videoPreviewUrl);
+    }
+    setSelectedVideoFile(null);
+    setVideoPreviewUrl(null);
+    setVideoError(null);
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
+    }
+  }, [videoPreviewUrl]);
 
   const handleCreatePost = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!content.trim() && !selectedFile) || !isAuthenticated) return;
+    if ((!content.trim() && !selectedImageFile && !selectedVideoFile) || !isAuthenticated) return;
 
     setSubmissionError(null);
     setImageError(null);
+    setVideoError(null);
+    setModerationError(null);
     setSuccessMessage(null);
 
     try {
-      let imageData: Image | null = null;
-      if (selectedFile) {
-        imageData = await fileToBackendImage(selectedFile);
+      let imageData: ExternalBlob | null = null;
+      let videoData: ExternalBlob | null = null;
+
+      if (selectedImageFile) {
+        imageData = await fileToBackendImage(selectedImageFile);
+      }
+
+      if (selectedVideoFile) {
+        videoData = await fileToBackendVideo(selectedVideoFile);
       }
 
       await createPost.mutateAsync({
         content: content.trim(),
         image: imageData,
+        video: videoData,
       });
 
       setContent('');
       handleRemoveImage();
+      handleRemoveVideo();
       
       setSuccessMessage('Your post has been shared with the community!');
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (error: any) {
       console.error('Failed to create post:', error);
-      const errorMessage = extractErrorMessage(error);
+      const errorMessage = normalizeModerationMessage(error);
+      const errorType = categorizeError(errorMessage);
       
-      if (errorMessage.toLowerCase().includes('image') || 
-          errorMessage.toLowerCase().includes('size') ||
-          errorMessage.toLowerCase().includes('10mb') ||
-          errorMessage.toLowerCase().includes('mb')) {
-        setImageError(errorMessage);
-      } else {
-        setSubmissionError(errorMessage);
+      switch (errorType) {
+        case 'moderation':
+          setModerationError(errorMessage);
+          break;
+        case 'video':
+          setVideoError(errorMessage);
+          break;
+        case 'image':
+          setImageError(errorMessage);
+          break;
+        default:
+          setSubmissionError(errorMessage);
+          break;
       }
     }
-  }, [content, selectedFile, isAuthenticated, createPost, handleRemoveImage]);
+  }, [content, selectedImageFile, selectedVideoFile, isAuthenticated, createPost, handleRemoveImage, handleRemoveVideo]);
 
   const handleAddImageClick = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
     }
-    fileInputRef.current?.click();
+    imageInputRef.current?.click();
+  }, []);
+
+  const handleAddVideoClick = useCallback(() => {
+    if (videoInputRef.current) {
+      videoInputRef.current.value = '';
+    }
+    videoInputRef.current?.click();
   }, []);
 
   const handleManualRefresh = useCallback(async () => {
@@ -125,11 +186,14 @@ export default function FeedPage() {
 
   useEffect(() => {
     return () => {
-      if (previewUrl) {
-        revokeImageUrl(previewUrl);
+      if (imagePreviewUrl) {
+        revokeImageUrl(imagePreviewUrl);
+      }
+      if (videoPreviewUrl) {
+        revokeVideoUrl(videoPreviewUrl);
       }
     };
-  }, [previewUrl]);
+  }, [imagePreviewUrl, videoPreviewUrl]);
 
   // Memoize sorted posts to avoid re-sorting on every render
   const sortedPosts = useMemo(() => {
@@ -178,10 +242,10 @@ export default function FeedPage() {
                 disabled={createPost.isPending}
               />
               
-              {previewUrl && (
+              {imagePreviewUrl && (
                 <div className="relative inline-block">
                   <img
-                    src={previewUrl}
+                    src={imagePreviewUrl}
                     alt="Preview"
                     className="max-h-64 rounded-lg border object-contain"
                     loading="lazy"
@@ -200,9 +264,39 @@ export default function FeedPage() {
                 </div>
               )}
 
+              {videoPreviewUrl && (
+                <div className="relative inline-block w-full">
+                  <video
+                    src={videoPreviewUrl}
+                    controls
+                    className="max-h-64 w-full rounded-lg border object-contain"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={handleRemoveVideo}
+                    disabled={createPost.isPending}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
+              {moderationError && (
+                <ModerationAlert message={moderationError} />
+              )}
+
               {imageError && (
                 <Alert variant="destructive">
                   <AlertDescription>{imageError}</AlertDescription>
+                </Alert>
+              )}
+
+              {videoError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{videoError}</AlertDescription>
                 </Alert>
               )}
 
@@ -224,22 +318,40 @@ export default function FeedPage() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <input
-                    ref={fileInputRef}
+                    ref={imageInputRef}
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={handleFileSelect}
+                    onChange={handleImageSelect}
                     className="hidden"
                     id="image-upload"
+                  />
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                    onChange={handleVideoSelect}
+                    className="hidden"
+                    id="video-upload"
                   />
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleAddImageClick}
-                    disabled={createPost.isPending || !!selectedFile}
+                    disabled={createPost.isPending || !!selectedImageFile || !!selectedVideoFile}
                   >
                     <ImageIcon className="h-4 w-4 mr-2" />
                     Add Image
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddVideoClick}
+                    disabled={createPost.isPending || !!selectedImageFile || !!selectedVideoFile}
+                  >
+                    <VideoIcon className="h-4 w-4 mr-2" />
+                    Add Video
                   </Button>
                   <span className="text-xs text-muted-foreground">
                     {content.length}/1000 characters
@@ -247,7 +359,7 @@ export default function FeedPage() {
                 </div>
                 <Button
                   type="submit"
-                  disabled={(!content.trim() && !selectedFile) || createPost.isPending}
+                  disabled={(!content.trim() && !selectedImageFile && !selectedVideoFile) || createPost.isPending}
                   className="w-full sm:w-auto"
                 >
                   {createPost.isPending ? (

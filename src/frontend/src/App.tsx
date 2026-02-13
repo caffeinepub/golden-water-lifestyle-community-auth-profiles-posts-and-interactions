@@ -9,6 +9,8 @@ import RouteChunkLoading from './components/state/RouteChunkLoading';
 const FeedPage = lazy(() => import('./pages/FeedPage'));
 const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AdminPanelPage = lazy(() => import('./pages/AdminPanelPage'));
+const TipsPage = lazy(() => import('./pages/TipsPage'));
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -44,7 +46,19 @@ const profileRoute = createRoute({
   component: ProfilePage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, feedRoute, postDetailRoute, profileRoute]);
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  component: AdminPanelPage,
+});
+
+const tipsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/tips',
+  component: TipsPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, feedRoute, postDetailRoute, profileRoute, adminRoute, tipsRoute]);
 
 const router = createRouter({ routeTree });
 

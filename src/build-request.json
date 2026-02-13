@@ -1,73 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Show post author username on the Community Feed",
+  "title": "Add dedicated Tips page with drinking-water tips",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a backend query method that lets any authenticated user resolve a post author principal to a public display name (username), so the frontend can show usernames on the Community Feed without requiring admin permissions.",
-      "target": "backend",
+      "text": "Create a new dedicated Tips page route at \"/tips\" and add it to the TanStack Router route tree so it is accessible as a normal page in the SPA.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-1"
         ],
         "quotes": [
-          "Make sure the username appears on the community feed."
+          "Great — selecting option 2 means you want the drinking‑water tips placed on a new dedicated Tips page.",
+          "build it"
         ]
       },
       "acceptanceCriteria": [
-        "A new query endpoint exists on the main actor (backend/main.mo) that accepts a user Principal and returns the user's username (or null/empty when no profile exists).",
-        "The endpoint is callable by users with #user permission (i.e., it does not require the caller to be the same principal and does not require admin).",
-        "Existing endpoints and authorization rules for private profile access (e.g., getUserProfile) remain unchanged."
+        "Navigating to /tips renders a Tips page without errors.",
+        "The page is code-split (lazy-loaded) consistently with other non-landing pages (e.g., FeedPage).",
+        "The new route is included in the router's routeTree (frontend/src/App.tsx)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the Community Feed post UI to display the author's username (from the profile) instead of the truncated principal string currently shown in each post header.",
+      "text": "Implement the Tips page UI containing the drinking-water tips content as a readable, responsive layout using existing UI components and Tailwind styling, with all user-facing text in English.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-1"
         ],
         "quotes": [
-          "Make sure the username appears on the community feed."
+          "drinking water tips",
+          "add them to the website",
+          "2"
         ]
       },
       "acceptanceCriteria": [
-        "In the feed post list (frontend/src/pages/FeedPage.tsx using frontend/src/components/posts/PostCard.tsx), each post header shows the author's username when available.",
-        "If the current user is the author, the label remains \"You\".",
-        "If the username cannot be resolved (no profile or request failure), the UI falls back to the existing display format: \"User {first 8 chars of principal}...\".",
-        "Username lookups are cached (via React Query) so scrolling the feed does not trigger repeated network calls for the same author principal."
+        "The Tips page displays the following tips as a list:\n- Drink when you feel thirsty.\n- Keep a reusable water bottle with you.\n- Start your day with a glass of water.\n- Add lemon, cucumber or berries for flavor.\n- Choose water over sugary drinks.\n- Eat water‑rich foods like melon or cucumbers.\n- Aim for pale‑yellow urine as a hydration guide.\n- Sip water during meals.\n- Set small reminders if you forget to drink.",
+        "The page has a clear page title (e.g., \"Hydration Tips\") and uses consistent spacing/typography with the rest of the site.",
+        "The page renders well on mobile and desktop widths (no horizontal overflow; text remains legible)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a dedicated React Query hook for resolving a public username by principal, and use it in PostCard when rendering the Community Feed author line.",
+      "text": "Add navigation access to the Tips page from the app’s header navigation (desktop) and mobile menu so users can reach \"/tips\" easily.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-1"
         ],
         "quotes": [
-          "Make sure the username appears on the community feed."
+          "add them to the website",
+          "2"
         ]
       },
       "acceptanceCriteria": [
-        "A new hook is added in frontend/src/hooks/useQueries.ts to fetch a username by Principal (calling the new backend method).",
-        "PostCard uses the new hook to render the display name, without changing any files under frontend/src/components/ui or other immutable paths.",
-        "The feed remains functional when logged in and viewing posts, with no new console errors caused by the username lookup."
+        "A \"Tips\" link is visible in the desktop navigation and navigates to /tips.",
+        "A \"Tips\" link is visible in the mobile navigation drawer and navigates to /tips, closing the drawer after navigation.",
+        "The Tips link does not require authentication (it is available regardless of login state)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Apply a cohesive visual theme for the new Tips page that matches the existing site’s warm “Golden Water” aesthetic (warm gold/amber neutrals), and keep styling consistent with the current layout components.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-1"
+        ],
+        "quotes": [
+          "build it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Tips page uses the existing design system primitives (Tailwind + existing UI components) and does not introduce a conflicting color palette.",
+        "The page looks visually integrated with the current LandingPage/AppLayout styling (cards, typography, spacing, and background treatments align)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister with logic in backend/main.mo.",
-    "Do not edit immutable frontend paths listed in SYSTEM_CONTEXT (compose existing UI components instead).",
-    "Use English for any user-facing text."
+    "Do not modify files under frontend/src/components/ui (compose existing UI components only).",
+    "Do not modify immutable hook/bootstrap files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Keep all changes within the existing single-SPA TanStack Router architecture; no new backend services."
   ],
   "nonGoals": [
-    "Do not change how comments display author identity (unless separately requested).",
-    "Do not implement third-party auth or identity providers beyond Internet Identity.",
-    "Do not redesign the feed layout beyond what is necessary to show the username."
+    "Do not add third-party integrations, analytics, or external CMS for tips content.",
+    "Do not add user-generated tips, commenting, liking, or admin management for tips (static content only).",
+    "Do not change age-gating behavior for existing gated routes (/feed, /profile, /post/:postId)."
   ],
   "imageRequirements": {
     "required": [],

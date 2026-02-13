@@ -1,4 +1,4 @@
-import type { Image } from '../backend';
+import { ExternalBlob } from '../backend';
 
 const SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB to match backend limit
@@ -30,19 +30,16 @@ export function validateImageFile(file: File): ImageValidationResult {
 }
 
 /**
- * Converts a File to the backend Image format (Uint8Array + mimeType)
+ * Converts a File to the backend ExternalBlob format
  */
-export async function fileToBackendImage(file: File): Promise<Image> {
+export async function fileToBackendImage(file: File): Promise<ExternalBlob> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
     reader.onload = () => {
       const arrayBuffer = reader.result as ArrayBuffer;
       const uint8Array = new Uint8Array(arrayBuffer);
-      resolve({
-        data: uint8Array,
-        mimeType: file.type,
-      });
+      resolve(ExternalBlob.fromBytes(uint8Array));
     };
     
     reader.onerror = () => {
@@ -57,20 +54,17 @@ export async function fileToBackendImage(file: File): Promise<Image> {
  * Safely unwraps an optional image from the backend response
  * Handles various possible encodings (undefined, null, empty array, wrapped value)
  */
-export function unwrapOptionalImage(image: Image | undefined | null): Image | undefined {
+export function unwrapOptionalImage(image: ExternalBlob | undefined | null): ExternalBlob | undefined {
   if (!image) return undefined;
-  if (typeof image === 'object' && 'data' in image && 'mimeType' in image) {
-    return image;
-  }
-  return undefined;
+  return image;
 }
 
 /**
  * Converts backend image data to a browser-safe blob URL for rendering
+ * @deprecated Use useBackendExternalBlobUrl hook instead for proper cleanup
  */
-export function backendImageToUrl(image: Image): string {
-  const blob = new Blob([new Uint8Array(image.data)], { type: image.mimeType });
-  return URL.createObjectURL(blob);
+export function backendImageToUrl(image: ExternalBlob): string {
+  return image.getDirectURL();
 }
 
 /**
