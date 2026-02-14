@@ -1,84 +1,108 @@
 {
   "kind": "build_request",
-  "title": "Add a new Facts page with urine facts",
+  "title": "Add \"LOVE THE LIQUID\" monetization page with embedded Ko‑fi and button link",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Create a new public \"Facts\" page that displays the provided human urine facts as a readable, styled list (English text), consistent with the existing Tailwind + shadcn Card styling used on the Tips page.",
+      "id": "REQ-4",
+      "text": "Create a new public page titled \"LOVE THE LIQUID\" that includes (1) a prominent title at the top and (2) an embedded view of https://ko-fi.com/painparadise on the page.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-5",
+          "msg-6",
+          "msg-9",
+          "msg-11"
         ],
         "quotes": [
-          "ADD A FACTS PAGE"
+          "ADD monetizing FEATURES https://ko-fi.com/painparadise  CALL IT LOVE THE LIQUID",
+          "EMBED, monetizing, NEW PAGE",
+          "1, YES IN A BUTTON, YES, TITLE",
+          "BULID"
         ]
       },
       "acceptanceCriteria": [
-        "A new page component exists at frontend/src/pages/FactsPage.tsx (or equivalent in the existing pages folder) and renders without runtime errors.",
-        "The page has a clear H1 title (e.g., \"Facts\" or \"Human Urine Facts\") and shows a numbered or bulleted list of urine facts.",
-        "The styling is consistent with existing app pages (e.g., container widths, Card usage, typography, spacing).",
-        "All displayed facts are in English and are human-urine-related (no unrelated content)."
+        "A new React page component exists for the monetization page and renders a visible H1 title \"LOVE THE LIQUID\".",
+        "The page embeds the Ko-fi destination https://ko-fi.com/painparadise directly within the page content (e.g., via iframe/embed), and the embed loads without crashing the app.",
+        "The page is accessible without requiring authentication (consistent with existing public pages like Tips/Facts)."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Add routing for the new Facts page at path \"/facts\" using the existing TanStack Router pattern in frontend/src/App.tsx (lazy-loaded like other pages).",
+      "id": "REQ-5",
+      "text": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page that links to https://ko-fi.com/painparadise.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-9"
         ],
         "quotes": [
-          "ADD A FACTS PAGE"
+          "1, YES IN A BUTTON, YES, TITLE"
         ]
       },
       "acceptanceCriteria": [
-        "Visiting /facts in the browser renders the new Facts page.",
-        "The Facts page is included in the router tree similarly to /tips (lazy-loaded and wrapped by the existing AppLayout)."
+        "A button is visible on the \"LOVE THE LIQUID\" page and uses English user-facing text.",
+        "Clicking the button opens https://ko-fi.com/painparadise (preferably in a new tab using safe link attributes)."
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Add navigation entry for the new Facts page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
+      "id": "REQ-6",
+      "text": "Add routing for the new \"LOVE THE LIQUID\" page using the existing TanStack Router pattern in frontend/src/App.tsx, with a stable, human-readable path (e.g., \"/love-the-liquid\") and lazy-loading like other non-landing pages.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-5",
+          "msg-6",
+          "msg-9",
+          "msg-11"
         ],
         "quotes": [
-          "ADD A FACTS PAGE"
+          "CALL IT LOVE THE LIQUID",
+          "EMBED, monetizing, NEW PAGE",
+          "1, YES IN A BUTTON, YES, TITLE",
+          "BULID"
         ]
       },
       "acceptanceCriteria": [
-        "Desktop nav includes a \"Facts\" link that navigates to /facts.",
-        "Mobile nav includes a \"Facts\" link that navigates to /facts and closes the sheet on click.",
-        "The new link is visible to unauthenticated users (same visibility level as the existing Tips link)."
+        "Navigating directly to the new route path renders the \"LOVE THE LIQUID\" page.",
+        "The new page is lazy-loaded similarly to existing routes (e.g., Tips/Facts) and does not increase initial bundle unnecessarily."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add a navigation entry for the new \"LOVE THE LIQUID\" page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5",
+          "msg-6",
+          "msg-9",
+          "msg-11"
+        ],
+        "quotes": [
+          "CALL IT LOVE THE LIQUID",
+          "EMBED, monetizing, NEW PAGE",
+          "1, YES IN A BUTTON, YES, TITLE",
+          "BULID"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Desktop header shows a nav link that routes to the \"LOVE THE LIQUID\" page.",
+        "Mobile menu shows a nav link that routes to the \"LOVE THE LIQUID\" page and closes the menu when clicked."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (read-only shadcn components).",
-    "Keep backend unchanged unless strictly required for the Facts page (this feature should be frontend-only/static content)."
+    "Use English for any user-facing text.",
+    "Do not edit files under frontend/src/components/ui (compose existing shadcn components instead).",
+    "Do not edit immutable hook files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx)."
   ],
   "nonGoals": [
-    "Do not add or modify backend canister APIs for this change.",
-    "Do not implement search, filtering, or CMS-style editing for facts unless explicitly requested.",
-    "Do not change existing Tips page content beyond what is necessary for navigation consistency."
+    "Implementing payments, subscriptions, or storing purchase/donation state in the backend.",
+    "Adding any new authentication provider beyond Internet Identity.",
+    "Building a custom checkout flow; the Ko-fi experience remains hosted by Ko-fi."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -1,29 +1,40 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T01:55:42.816Z",
+  "generatedAt": "2026-02-14T02:09:07.663Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Create a new public \"Facts\" page that displays the provided human urine facts as a readable, styled list (English text), consistent with the existing Tailwind + shadcn Card styling used on the Tips page.",
+        "id": "REQ-4",
+        "summary": "Create a new public page titled \"LOVE THE LIQUID\" that includes (1) a prominent title at the top and (2) an embedded view of https://ko-fi.com/painparadise on the page.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/FactsPage.tsx"
+          "frontend/src/pages/LoveTheLiquidPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/FactsPage.tsx"
+          "frontend/src/pages/LoveTheLiquidPage.tsx"
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Add routing for the new Facts page at path \"/facts\" using the existing TanStack Router pattern in frontend/src/App.tsx (lazy-loaded like other pages).",
+        "id": "REQ-5",
+        "summary": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page that links to https://ko-fi.com/painparadise.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/LoveTheLiquidPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/LoveTheLiquidPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add routing for the new \"LOVE THE LIQUID\" page using the existing TanStack Router pattern in frontend/src/App.tsx, with a stable, human-readable path (e.g., \"/love-the-liquid\") and lazy-loading like other non-landing pages.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/App.tsx"
@@ -33,8 +44,8 @@
         ]
       },
       {
-        "id": "REQ-3",
-        "summary": "Add navigation entry for the new Facts page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
+        "id": "REQ-7",
+        "summary": "Add a navigation entry for the new \"LOVE THE LIQUID\" page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/layout/AppLayout.tsx",
@@ -55,7 +66,7 @@
     "frontend/src/App.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
     "frontend/src/components/layout/MobileNav.tsx",
-    "frontend/src/pages/FactsPage.tsx",
+    "frontend/src/pages/LoveTheLiquidPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,58 +1,71 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Facts page and navigation (/facts)",
+  "title": "Add public \"LOVE THE LIQUID\" Ko-fi monetization page",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Create a new public Facts page that renders a readable, styled list of human urine facts consistent with existing Tailwind + shadcn Card styling used on the Tips page.",
+      "id": "REQ-4",
+      "summary": "Create a new public \"LOVE THE LIQUID\" page with a prominent title and embedded Ko-fi view.",
       "acceptanceCriteria": [
-        "A new page component exists at frontend/src/pages/FactsPage.tsx (or equivalent in the existing pages folder) and renders without runtime errors.",
-        "The page has a clear H1 title (e.g., \"Facts\" or \"Human Urine Facts\") and shows a numbered or bulleted list of urine facts.",
-        "The styling is consistent with existing app pages (e.g., container widths, Card usage, typography, spacing).",
-        "All displayed facts are in English and are human-urine-related (no unrelated content)."
+        "A new React page component exists for the monetization page and renders a visible H1 title \"LOVE THE LIQUID\".",
+        "The page embeds the Ko-fi destination https://ko-fi.com/painparadise directly within the page content (e.g., via iframe/embed), and the embed loads without crashing the app.",
+        "The page is accessible without requiring authentication (consistent with existing public pages like Tips/Facts)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/FactsPage.tsx",
+          "path": "frontend/src/pages/LoveTheLiquidPage.tsx",
           "operation": "create",
-          "description": "Add a new Facts page component that displays a static English list of human-urine-related facts, using the same Tailwind layout patterns and the shadcn Card components (imported from the existing ui layer) consistent with TipsPage. Verify the component's usage instructions before implementing."
+          "description": "Create a new public page component rendering an H1 \"LOVE THE LIQUID\" and an embedded view of https://ko-fi.com/painparadise (e.g., responsive iframe with safe sandbox/referrer policy). Use existing shadcn-ui components (e.g., Card) to match app styling—Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Add a lazy-loaded TanStack Router route for the Facts page at /facts, included in the router tree and wrapped by the existing AppLayout.",
+      "id": "REQ-5",
+      "summary": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page linking to Ko-fi.",
       "acceptanceCriteria": [
-        "Visiting /facts in the browser renders the new Facts page.",
-        "The Facts page is included in the router tree similarly to /tips (lazy-loaded and wrapped by the existing AppLayout)."
+        "A button is visible on the \"LOVE THE LIQUID\" page and uses English user-facing text.",
+        "Clicking the button opens https://ko-fi.com/painparadise (preferably in a new tab using safe link attributes)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LoveTheLiquidPage.tsx",
+          "operation": "modify",
+          "description": "Add a prominent call-to-action button with English text that links to https://ko-fi.com/painparadise and opens in a new tab with safe rel attributes. Compose using the existing shadcn-ui Button component—Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Register a lazy-loaded TanStack Router route for the new \"LOVE THE LIQUID\" page at a stable path.",
+      "acceptanceCriteria": [
+        "Navigating directly to the new route path renders the \"LOVE THE LIQUID\" page.",
+        "The new page is lazy-loaded similarly to existing routes (e.g., Tips/Facts) and does not increase initial bundle unnecessarily."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Register the new lazy-loaded Facts page route at path \"/facts\" using the same TanStack Router pattern as the existing Tips route (lazy import, createRoute, and inclusion in the route tree)."
+          "description": "Add a lazy import for LoveTheLiquidPage and register a new TanStack Router route at a stable, human-readable path like \"/love-the-liquid\", included in the routeTree alongside existing lazy-loaded pages."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Add Facts link to desktop header navigation and mobile menu, visible to unauthenticated users, matching existing Tips link visibility and behavior.",
+      "id": "REQ-7",
+      "summary": "Add navigation links to the \"LOVE THE LIQUID\" page in both desktop header nav and mobile menu.",
       "acceptanceCriteria": [
-        "Desktop nav includes a \"Facts\" link that navigates to /facts.",
-        "Mobile nav includes a \"Facts\" link that navigates to /facts and closes the sheet on click.",
-        "The new link is visible to unauthenticated users (same visibility level as the existing Tips link)."
+        "Desktop header shows a nav link that routes to the \"LOVE THE LIQUID\" page.",
+        "Mobile menu shows a nav link that routes to the \"LOVE THE LIQUID\" page and closes the menu when clicked."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add a new \"Facts\" Link in the desktop navigation alongside the existing public links (e.g., near \"Tips\"), ensuring it is visible regardless of authentication state and routes to \"/facts\"."
+          "description": "Add a new desktop header navigation <Link> entry labeled \"LOVE THE LIQUID\" pointing to \"/love-the-liquid\" and keep it visible for unauthenticated users (like Tips/Facts)."
         },
         {
           "path": "frontend/src/components/layout/MobileNav.tsx",
           "operation": "modify",
-          "description": "Add a new \"Facts\" Link in the mobile navigation alongside the existing public links (e.g., near \"Tips\"), ensuring it routes to \"/facts\" and calls onClose to close the sheet on click."
+          "description": "Add a new mobile menu <Link> entry labeled \"LOVE THE LIQUID\" pointing to \"/love-the-liquid\" and ensure it calls onClose when clicked (consistent with other mobile links)."
         }
       ]
     }

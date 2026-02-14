@@ -1,34 +1,42 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Website/app to include a feed with drip-water emoji likes and a new Facts page containing human urine facts.",
-  "architectural_notes": [],
-  "known_issues": [
-    "Previous build attempt for drip-water emoji likes failed and draft app expired; may require rebuild/retry of deployment pipeline."
+  "summary": "App with a new monetization page named \"LOVE THE LIQUID\" that embeds the Ko-fi page and includes a button link plus a title.",
+  "architectural_notes": [
+    "Monetization will be implemented as a dedicated page containing an embedded Ko-fi view plus a button link to https://ko-fi.com/painparadise."
   ],
+  "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-create-a-new-public-facts-page-that-displays-the-provided-human-urine-facts-as-a-readable-styled-list-english-text-consistent-with-the-existing-tailwind-shadcn-card-styling-used-on-the-tips-page",
-      "title": "Create a new public \"Facts\" page that displays the provided human urine facts as a readable, styled list (English text), consistent with the existing Tailwind + shadcn Card styling used on the Tips page.",
+      "id": "feature-create-a-new-public-page-titled-love-the-liquid-that-includes-1-a-prominent-title-at-the-top-and-2-an-embedded-view-of-https-ko-fi-com-painparadise-on-the-page",
+      "title": "Create a new public page titled \"LOVE THE LIQUID\" that includes (1) a prominent title at the top and (2) an embedded view of https://ko-fi.com/painparadise on the page.",
       "reqIds": [
-        "REQ-1"
+        "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-routing-for-the-new-facts-page-at-path-facts-using-the-existing-tanstack-router-pattern-in-frontend-src-app-tsx-lazy-loaded-like-other-pages",
-      "title": "Add routing for the new Facts page at path \"/facts\" using the existing TanStack Router pattern in frontend/src/App.tsx (lazy-loaded like other pages).",
+      "id": "feature-add-a-clear-call-to-action-button-on-the-love-the-liquid-page-that-links-to-https-ko-fi-com-painparadise",
+      "title": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page that links to https://ko-fi.com/painparadise.",
       "reqIds": [
-        "REQ-2"
+        "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-navigation-entry-for-the-new-facts-page-to-both-the-desktop-header-navigation-frontend-src-components-layout-applayout-tsx-and-the-mobile-menu-frontend-src-components-layout-mobilenav-tsx",
-      "title": "Add navigation entry for the new Facts page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
+      "id": "feature-add-routing-for-the-new-love-the-liquid-page-using-the-existing-tanstack-router-pattern-in-frontend-src-app-tsx-with-a-stable-human-readable-path-e-g-love-the-liquid-and-lazy-loading-like-other-non-landing-pages",
+      "title": "Add routing for the new \"LOVE THE LIQUID\" page using the existing TanStack Router pattern in frontend/src/App.tsx, with a stable, human-readable path (e.g., \"/love-the-liquid\") and lazy-loading like other non-landing pages.",
       "reqIds": [
-        "REQ-3"
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-entry-for-the-new-love-the-liquid-page-to-both-the-desktop-header-navigation-frontend-src-components-layout-applayout-tsx-and-the-mobile-menu-frontend-src-components-layout-mobilenav-tsx",
+      "title": "Add a navigation entry for the new \"LOVE THE LIQUID\" page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
+      "reqIds": [
+        "REQ-7"
       ],
       "version": 1
     }
@@ -36,18 +44,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add drip-water emoji like button on the feed (single reaction option).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a new Facts page to the website and populate it with the provided human urine facts.",
+      "summary": "Add new monetization page \"LOVE THE LIQUID\" with embedded Ko-fi (https://ko-fi.com/painparadise), a button link, and a title",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add a new Facts page with urine facts",
+  "projectName": "LOVE THE LIQUID",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

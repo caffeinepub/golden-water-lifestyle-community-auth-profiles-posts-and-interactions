@@ -51,6 +51,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   >
                     Facts
                   </Link>
+                  <Link
+                    to="/love-the-liquid"
+                    className="text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    LOVE THE LIQUID
+                  </Link>
                   {isAuthenticated && (
                     <>
                       <Link

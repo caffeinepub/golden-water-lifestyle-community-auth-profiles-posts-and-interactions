@@ -46,6 +46,13 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
           >
             Facts
           </Link>
+          <Link
+            to="/love-the-liquid"
+            onClick={onClose}
+            className="text-base font-medium hover:text-primary transition-colors py-2"
+          >
+            LOVE THE LIQUID
+          </Link>
           {isAuthenticated && (
             <>
               <Link
