@@ -1,40 +1,40 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T05:41:54.415Z",
+  "generatedAt": "2026-02-14T01:55:42.816Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Create a new dedicated Tips page route at \"/tips\" and add it to the TanStack Router route tree so it is accessible as a normal page in the SPA.",
+        "summary": "Create a new public \"Facts\" page that displays the provided human urine facts as a readable, styled list (English text), consistent with the existing Tailwind + shadcn Card styling used on the Tips page.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/pages/FactsPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/pages/FactsPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement the Tips page UI containing the drinking-water tips content as a readable, responsive layout using existing UI components and Tailwind styling, with all user-facing text in English.",
+        "summary": "Add routing for the new Facts page at path \"/facts\" using the existing TanStack Router pattern in frontend/src/App.tsx (lazy-loaded like other pages).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/TipsPage.tsx"
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/TipsPage.tsx"
+          "frontend/src/App.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add navigation access to the Tips page from the app’s header navigation (desktop) and mobile menu so users can reach \"/tips\" easily.",
+        "summary": "Add navigation entry for the new Facts page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/layout/AppLayout.tsx",
@@ -43,17 +43,6 @@
         "matchedFiles": [
           "frontend/src/components/layout/AppLayout.tsx",
           "frontend/src/components/layout/MobileNav.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Apply a cohesive visual theme for the new Tips page that matches the existing site’s warm “Golden Water” aesthetic (warm gold/amber neutrals), and keep styling consistent with the current layout components.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/TipsPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/TipsPage.tsx"
         ]
       }
     ]
@@ -66,7 +55,7 @@
     "frontend/src/App.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
     "frontend/src/components/layout/MobileNav.tsx",
-    "frontend/src/pages/TipsPage.tsx",
+    "frontend/src/pages/FactsPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

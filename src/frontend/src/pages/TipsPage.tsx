@@ -1,4 +1,4 @@
-import { Droplet } from 'lucide-react';
+import { Droplet, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 export default function TipsPage() {
@@ -8,10 +8,20 @@ export default function TipsPage() {
     'Start your day with a glass of water.',
     'Add lemon, cucumber or berries for flavor.',
     'Choose water over sugary drinks.',
-    'Eat water‑rich foods like melon or cucumbers.',
-    'Aim for pale‑yellow urine as a hydration guide.',
+    'Eat water-rich foods like melon or cucumbers.',
+    'Aim for pale-yellow urine as a hydration guide.',
     'Sip water during meals.',
     'Set small reminders if you forget to drink.',
+  ];
+
+  const urineFacts = [
+    'Urine is about 95% water.',
+    'Its yellow color comes from a pigment called urochrome.',
+    'You make around 3 to 8 cups per day.',
+    'Morning urine is darker because it is more concentrated.',
+    'Food can change it; asparagus affects smell and beets may turn it pink.',
+    'Dark urine usually means you need more water.',
+    'Bladders hold roughly 1.5 to 2 cups.',
   ];
 
   return (
@@ -37,13 +47,38 @@ export default function TipsPage() {
             <ul className="space-y-4">
               {tips.map((tip, index) => (
                 <li key={index} className="flex items-start gap-3 sm:gap-4">
-                  <div className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
+                  <div className="shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
                     <span className="text-xs sm:text-sm font-semibold text-primary">
                       {index + 1}
                     </span>
                   </div>
                   <p className="text-sm sm:text-base leading-relaxed pt-0.5">
                     {tip}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg mt-8 sm:mt-12">
+          <CardHeader>
+            <CardTitle className="text-xl sm:text-2xl flex items-center gap-2">
+              <Info className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              Urine Facts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-4">
+              {urineFacts.map((fact, index) => (
+                <li key={index} className="flex items-start gap-3 sm:gap-4">
+                  <div className="shrink-0 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
+                    <span className="text-xs sm:text-sm font-semibold text-primary">
+                      {index + 1}
+                    </span>
+                  </div>
+                  <p className="text-sm sm:text-base leading-relaxed pt-0.5">
+                    {fact}
                   </p>
                 </li>
               ))}

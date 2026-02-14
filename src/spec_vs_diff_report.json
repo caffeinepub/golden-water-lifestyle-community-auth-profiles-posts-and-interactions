@@ -1,17 +1,41 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T05:41:54.412Z",
-  "summary": "All four requested requirements appear implemented: a new lazy-loaded /tips route is added to the TanStack Router tree, a responsive Tips page with the specified hydration tips is created, and navigation links to Tips are added in both desktop header and mobile drawer (closing the drawer on click) with styling consistent with the existing warm theme tokens.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.86,
+  "generatedAt": "2026-02-14T01:55:42.813Z",
+  "summary": "REQ-2 and REQ-3 appear implemented: a /facts route is added to the TanStack Router (lazy-loaded) and \"Facts\" navigation links are added to both desktop and mobile nav (mobile closes on click). REQ-1 is only partially evidenced because the FactsPage render output is truncated; the diff shows a facts array and shadcn Card imports but does not clearly show an H1 and a bulleted/numbered list being rendered with the intended styling.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Facts page renders a clear H1 title and a numbered or bulleted list of human urine facts with Card-based styling consistent with the Tips page.",
+      "reason": "FactsPage.tsx content is truncated before showing the JSX render. The diff only evidences the facts array and Card imports, not the required H1/title and list rendering/styling.",
+      "evidence": [
+        "frontend/src/pages/FactsPage.tsx (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Updated/introduced extensive unrelated feature descriptions (moderation hooks, attachment video support, reaction bar, age acknowledgement gate, styling/theme changes, etc.) in the frontend summary file.",
+      "reason": "These features are not requested by the BuildRequest (which is limited to adding a static Facts page, routing, and navigation). The only concrete change evidenced is that the summary file content includes these unrelated additions.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Project state metadata updated to include additional feature request tracking entries not required to deliver the Facts page feature.",
+      "reason": "The BuildRequest does not require updating project_state.json; this appears to be process/metadata work outside the requested implementation.",
+      "evidence": [
+        "project_state.json"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
     "frontend/src/components/layout/MobileNav.tsx",
-    "frontend/src/pages/TipsPage.tsx",
+    "frontend/src/pages/FactsPage.tsx",
     "project_state.json"
   ]
 }

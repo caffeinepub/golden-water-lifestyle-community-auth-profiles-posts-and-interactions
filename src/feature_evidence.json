@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-new-dedicated-tips-page-route-at-tips-and-add-it-to-the-tanstack-router-route-tree-so-it-is-accessible-as-a-normal-page-in-the-spa",
-      "featureTitle": "Create a new dedicated Tips page route at \"/tips\" and add it to the TanStack Router route tree so it is accessible as a normal page in the SPA.",
+      "featureId": "feature-create-a-new-public-facts-page-that-displays-the-provided-human-urine-facts-as-a-readable-styled-list-english-text-consistent-with-the-existing-tailwind-shadcn-card-styling-used-on-the-tips-page",
+      "featureTitle": "Create a new public \"Facts\" page that displays the provided human urine facts as a readable, styled list (English text), consistent with the existing Tailwind + shadcn Card styling used on the Tips page.",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/pages/FactsPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -22,10 +22,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-tips-page-ui-containing-the-drinking-water-tips-content-as-a-readable-responsive-layout-using-existing-ui-components-and-tailwind-styling-with-all-user-facing-text-in-english",
-      "featureTitle": "Implement the Tips page UI containing the drinking-water tips content as a readable, responsive layout using existing UI components and Tailwind styling, with all user-facing text in English.",
+      "featureId": "feature-add-routing-for-the-new-facts-page-at-path-facts-using-the-existing-tanstack-router-pattern-in-frontend-src-app-tsx-lazy-loaded-like-other-pages",
+      "featureTitle": "Add routing for the new Facts page at path \"/facts\" using the existing TanStack Router pattern in frontend/src/App.tsx (lazy-loaded like other pages).",
       "files": [
-        "frontend/src/pages/TipsPage.tsx"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,8 +42,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-navigation-access-to-the-tips-page-from-the-app-s-header-navigation-desktop-and-mobile-menu-so-users-can-reach-tips-easily",
-      "featureTitle": "Add navigation access to the Tips page from the app’s header navigation (desktop) and mobile menu so users can reach \"/tips\" easily.",
+      "featureId": "feature-add-navigation-entry-for-the-new-facts-page-to-both-the-desktop-header-navigation-frontend-src-components-layout-applayout-tsx-and-the-mobile-menu-frontend-src-components-layout-mobilenav-tsx",
+      "featureTitle": "Add navigation entry for the new Facts page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
       "files": [
         "frontend/src/components/layout/AppLayout.tsx",
         "frontend/src/components/layout/MobileNav.tsx"
@@ -59,26 +59,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-apply-a-cohesive-visual-theme-for-the-new-tips-page-that-matches-the-existing-site-s-warm-golden-water-aesthetic-warm-gold-amber-neutrals-and-keep-styling-consistent-with-the-current-layout-components",
-      "featureTitle": "Apply a cohesive visual theme for the new Tips page that matches the existing site’s warm “Golden Water” aesthetic (warm gold/amber neutrals), and keep styling consistent with the current layout components.",
-      "files": [
-        "frontend/src/pages/TipsPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

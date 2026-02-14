@@ -1,96 +1,84 @@
 {
   "kind": "build_request",
-  "title": "Add dedicated Tips page with drinking-water tips",
+  "title": "Add a new Facts page with urine facts",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a new dedicated Tips page route at \"/tips\" and add it to the TanStack Router route tree so it is accessible as a normal page in the SPA.",
+      "text": "Create a new public \"Facts\" page that displays the provided human urine facts as a readable, styled list (English text), consistent with the existing Tailwind + shadcn Card styling used on the Tips page.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "user-last"
         ],
         "quotes": [
-          "Great — selecting option 2 means you want the drinking‑water tips placed on a new dedicated Tips page.",
-          "build it"
+          "ADD A FACTS PAGE"
         ]
       },
       "acceptanceCriteria": [
-        "Navigating to /tips renders a Tips page without errors.",
-        "The page is code-split (lazy-loaded) consistently with other non-landing pages (e.g., FeedPage).",
-        "The new route is included in the router's routeTree (frontend/src/App.tsx)."
+        "A new page component exists at frontend/src/pages/FactsPage.tsx (or equivalent in the existing pages folder) and renders without runtime errors.",
+        "The page has a clear H1 title (e.g., \"Facts\" or \"Human Urine Facts\") and shows a numbered or bulleted list of urine facts.",
+        "The styling is consistent with existing app pages (e.g., container widths, Card usage, typography, spacing).",
+        "All displayed facts are in English and are human-urine-related (no unrelated content)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement the Tips page UI containing the drinking-water tips content as a readable, responsive layout using existing UI components and Tailwind styling, with all user-facing text in English.",
+      "text": "Add routing for the new Facts page at path \"/facts\" using the existing TanStack Router pattern in frontend/src/App.tsx (lazy-loaded like other pages).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "user-last"
         ],
         "quotes": [
-          "drinking water tips",
-          "add them to the website",
-          "2"
+          "ADD A FACTS PAGE"
         ]
       },
       "acceptanceCriteria": [
-        "The Tips page displays the following tips as a list:\n- Drink when you feel thirsty.\n- Keep a reusable water bottle with you.\n- Start your day with a glass of water.\n- Add lemon, cucumber or berries for flavor.\n- Choose water over sugary drinks.\n- Eat water‑rich foods like melon or cucumbers.\n- Aim for pale‑yellow urine as a hydration guide.\n- Sip water during meals.\n- Set small reminders if you forget to drink.",
-        "The page has a clear page title (e.g., \"Hydration Tips\") and uses consistent spacing/typography with the rest of the site.",
-        "The page renders well on mobile and desktop widths (no horizontal overflow; text remains legible)."
+        "Visiting /facts in the browser renders the new Facts page.",
+        "The Facts page is included in the router tree similarly to /tips (lazy-loaded and wrapped by the existing AppLayout)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add navigation access to the Tips page from the app’s header navigation (desktop) and mobile menu so users can reach \"/tips\" easily.",
+      "text": "Add navigation entry for the new Facts page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "user-last"
         ],
         "quotes": [
-          "add them to the website",
-          "2"
+          "ADD A FACTS PAGE"
         ]
       },
       "acceptanceCriteria": [
-        "A \"Tips\" link is visible in the desktop navigation and navigates to /tips.",
-        "A \"Tips\" link is visible in the mobile navigation drawer and navigates to /tips, closing the drawer after navigation.",
-        "The Tips link does not require authentication (it is available regardless of login state)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Apply a cohesive visual theme for the new Tips page that matches the existing site’s warm “Golden Water” aesthetic (warm gold/amber neutrals), and keep styling consistent with the current layout components.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-1"
-        ],
-        "quotes": [
-          "build it"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Tips page uses the existing design system primitives (Tailwind + existing UI components) and does not introduce a conflicting color palette.",
-        "The page looks visually integrated with the current LandingPage/AppLayout styling (cards, typography, spacing, and background treatments align)."
+        "Desktop nav includes a \"Facts\" link that navigates to /facts.",
+        "Mobile nav includes a \"Facts\" link that navigates to /facts and closes the sheet on click.",
+        "The new link is visible to unauthenticated users (same visibility level as the existing Tips link)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/components/ui (compose existing UI components only).",
-    "Do not modify immutable hook/bootstrap files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
-    "Keep all changes within the existing single-SPA TanStack Router architecture; no new backend services."
+    "Do not edit any files under frontend/src/components/ui (read-only shadcn components).",
+    "Keep backend unchanged unless strictly required for the Facts page (this feature should be frontend-only/static content)."
   ],
   "nonGoals": [
-    "Do not add third-party integrations, analytics, or external CMS for tips content.",
-    "Do not add user-generated tips, commenting, liking, or admin management for tips (static content only).",
-    "Do not change age-gating behavior for existing gated routes (/feed, /profile, /post/:postId)."
+    "Do not add or modify backend canister APIs for this change.",
+    "Do not implement search, filtering, or CMS-style editing for facts unless explicitly requested.",
+    "Do not change existing Tips page content beyond what is necessary for navigation consistency."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

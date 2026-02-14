@@ -11,6 +11,7 @@ const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const AdminPanelPage = lazy(() => import('./pages/AdminPanelPage'));
 const TipsPage = lazy(() => import('./pages/TipsPage'));
+const FactsPage = lazy(() => import('./pages/FactsPage'));
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -58,7 +59,13 @@ const tipsRoute = createRoute({
   component: TipsPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, feedRoute, postDetailRoute, profileRoute, adminRoute, tipsRoute]);
+const factsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/facts',
+  component: FactsPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, feedRoute, postDetailRoute, profileRoute, adminRoute, tipsRoute, factsRoute]);
 
 const router = createRouter({ routeTree });
 

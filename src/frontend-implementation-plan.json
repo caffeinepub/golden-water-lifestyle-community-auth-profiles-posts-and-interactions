@@ -1,73 +1,58 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Dedicated Tips page (drinking-water tips) with navigation access",
+  "title": "Add Facts page and navigation (/facts)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a new lazy-loaded /tips route and register it in the TanStack Router route tree.",
+      "summary": "Create a new public Facts page that renders a readable, styled list of human urine facts consistent with existing Tailwind + shadcn Card styling used on the Tips page.",
       "acceptanceCriteria": [
-        "Navigating to /tips renders a Tips page without errors.",
-        "The page is code-split (lazy-loaded) consistently with other non-landing pages (e.g., FeedPage).",
-        "The new route is included in the router's routeTree (frontend/src/App.tsx)."
+        "A new page component exists at frontend/src/pages/FactsPage.tsx (or equivalent in the existing pages folder) and renders without runtime errors.",
+        "The page has a clear H1 title (e.g., \"Facts\" or \"Human Urine Facts\") and shows a numbered or bulleted list of urine facts.",
+        "The styling is consistent with existing app pages (e.g., container widths, Card usage, typography, spacing).",
+        "All displayed facts are in English and are human-urine-related (no unrelated content)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Register a new \"/tips\" route in the TanStack Router routeTree, using React.lazy + Suspense like other non-landing pages to ensure consistent code-splitting behavior."
+          "path": "frontend/src/pages/FactsPage.tsx",
+          "operation": "create",
+          "description": "Add a new Facts page component that displays a static English list of human-urine-related facts, using the same Tailwind layout patterns and the shadcn Card components (imported from the existing ui layer) consistent with TipsPage. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement a readable, responsive Tips page UI that displays the provided hydration tips in English using existing UI components and Tailwind styling.",
+      "summary": "Add a lazy-loaded TanStack Router route for the Facts page at /facts, included in the router tree and wrapped by the existing AppLayout.",
       "acceptanceCriteria": [
-        "The Tips page displays the following tips as a list:\n- Drink when you feel thirsty.\n- Keep a reusable water bottle with you.\n- Start your day with a glass of water.\n- Add lemon, cucumber or berries for flavor.\n- Choose water over sugary drinks.\n- Eat water‑rich foods like melon or cucumbers.\n- Aim for pale‑yellow urine as a hydration guide.\n- Sip water during meals.\n- Set small reminders if you forget to drink.",
-        "The page has a clear page title (e.g., \"Hydration Tips\") and uses consistent spacing/typography with the rest of the site.",
-        "The page renders well on mobile and desktop widths (no horizontal overflow; text remains legible)."
+        "Visiting /facts in the browser renders the new Facts page.",
+        "The Facts page is included in the router tree similarly to /tips (lazy-loaded and wrapped by the existing AppLayout)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/TipsPage.tsx",
-          "operation": "create",
-          "description": "Create the Tips page view with an English title (e.g., \"Hydration Tips\") and a responsive layout that renders the provided tips as a readable list using existing UI components (e.g., Card) and Tailwind utility classes (no changes to frontend/src/components/ui)."
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register the new lazy-loaded Facts page route at path \"/facts\" using the same TanStack Router pattern as the existing Tips route (lazy import, createRoute, and inclusion in the route tree)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add public navigation links to /tips in both the desktop header navigation and the mobile navigation drawer.",
+      "summary": "Add Facts link to desktop header navigation and mobile menu, visible to unauthenticated users, matching existing Tips link visibility and behavior.",
       "acceptanceCriteria": [
-        "A \"Tips\" link is visible in the desktop navigation and navigates to /tips.",
-        "A \"Tips\" link is visible in the mobile navigation drawer and navigates to /tips, closing the drawer after navigation.",
-        "The Tips link does not require authentication (it is available regardless of login state)."
+        "Desktop nav includes a \"Facts\" link that navigates to /facts.",
+        "Mobile nav includes a \"Facts\" link that navigates to /facts and closes the sheet on click.",
+        "The new link is visible to unauthenticated users (same visibility level as the existing Tips link)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add a \"Tips\" Link to the desktop header navigation that is always visible (not gated by authentication/admin state) and routes to \"/tips\"."
+          "description": "Add a new \"Facts\" Link in the desktop navigation alongside the existing public links (e.g., near \"Tips\"), ensuring it is visible regardless of authentication state and routes to \"/facts\"."
         },
         {
           "path": "frontend/src/components/layout/MobileNav.tsx",
           "operation": "modify",
-          "description": "Add a \"Tips\" Link to the mobile navigation drawer that is always visible (not gated by authentication/admin state) and calls onClose on click so the drawer closes after navigating to \"/tips\"."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Style the Tips page to match the existing warm “Golden Water” aesthetic using existing Tailwind theme tokens and layout patterns.",
-      "acceptanceCriteria": [
-        "The Tips page uses the existing design system primitives (Tailwind + existing UI components) and does not introduce a conflicting color palette.",
-        "The page looks visually integrated with the current LandingPage/AppLayout styling (cards, typography, spacing, and background treatments align)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/TipsPage.tsx",
-          "operation": "modify",
-          "description": "Refine Tips page styling to align with the existing Golden Water theme (use existing Tailwind theme tokens/classes such as background/card/muted/primary, consistent container widths, spacing, and typography), keeping the page visually consistent with AppLayout/LandingPage patterns."
+          "description": "Add a new \"Facts\" Link in the mobile navigation alongside the existing public links (e.g., near \"Tips\"), ensuring it routes to \"/facts\" and calls onClose to close the sheet on click."
         }
       ]
     }

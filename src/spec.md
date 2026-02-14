@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add a dedicated, easy-to-find Tips page that presents drinking-water tips in a readable, responsive layout consistent with the site’s “Golden Water” visual style.
+**Goal:** Add a new public Facts page that presents human urine facts in a readable, styled list and make it accessible via routing and navigation.
 
 **Planned changes:**
-- Add a new lazy-loaded TanStack Router route at `/tips` and include it in the app route tree.
-- Build a responsive Tips page UI with an English page title and the provided drinking-water tips rendered as a readable list using existing components and Tailwind styling.
-- Add a “Tips” navigation link to both the desktop header navigation and the mobile menu, accessible without authentication.
+- Create a new `Facts` page component that displays provided human urine facts as a styled bulleted or numbered list, matching the Tailwind + shadcn Card look used on the Tips page.
+- Add a new lazy-loaded TanStack Router route for `/facts`, integrated into the existing router tree and wrapped by the current `AppLayout`.
+- Add a “Facts” link to both the desktop header navigation and the mobile navigation menu (closing the mobile sheet on click).
 
-**User-visible outcome:** Users can navigate to `/tips` (or use the “Tips” link in desktop/mobile navigation) to view hydration tips on a page that matches the existing site design.
+**User-visible outcome:** Users can navigate to `/facts` (and via the app’s nav menus) to view a styled list of human urine facts.

@@ -45,6 +45,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   >
                     Tips
                   </Link>
+                  <Link
+                    to="/facts"
+                    className="text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    Facts
+                  </Link>
                   {isAuthenticated && (
                     <>
                       <Link
