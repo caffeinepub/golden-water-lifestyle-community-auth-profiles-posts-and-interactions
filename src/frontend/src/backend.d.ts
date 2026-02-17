@@ -32,6 +32,10 @@ export type ModerationStatus = {
     __kind__: "flagged";
     flagged: string;
 };
+export interface PostPage {
+    nextPageStart?: bigint;
+    posts: Array<Post>;
+}
 export interface Post {
     id: bigint;
     content: string;
@@ -70,7 +74,6 @@ export interface backendInterface {
     createPost(content: string, image: ExternalBlob | null, video: ExternalBlob | null): Promise<bigint>;
     deleteComment(commentId: bigint): Promise<boolean>;
     deletePost(postId: bigint): Promise<boolean>;
-    getAllPosts(): Promise<Array<Post>>;
     getBlockedPosts(): Promise<Array<bigint>>;
     getCallerUserProfile(): Promise<Profile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -80,6 +83,7 @@ export interface backendInterface {
     getModerationStatus(postId: bigint): Promise<ModerationStatus>;
     getPost(postId: bigint): Promise<Post | null>;
     getPostComments(postId: bigint): Promise<Array<Comment>>;
+    getPostsPage(startIndex: bigint, pageSize: bigint): Promise<PostPage>;
     getReportedComments(): Promise<Array<Comment>>;
     getReportedCommentsAdminView(): Promise<Array<Comment>>;
     getReportedPosts(): Promise<Array<Post>>;

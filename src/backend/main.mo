@@ -9,8 +9,10 @@ import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
+import Migration "migration";
+import Timer "mo:core/Timer";
 
-// Apply migration.
+(with migration = Migration.run)
 actor {
   include MixinStorage();
 
@@ -81,6 +83,12 @@ actor {
 
   let moderationStates = Map.empty<Nat, ModerationStatus>();
   let moderationReasons = Map.empty<Nat, ModerationReason>();
+
+  // Paged results type for posts (can be used for comments if needed)
+  public type PostPage = {
+    posts : [Post];
+    nextPageStart : ?Nat;
+  };
 
   public query ({ caller }) func getCallerUserProfile() : async ?Profile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -238,22 +246,37 @@ actor {
     posts.get(postId);
   };
 
-  public query ({ caller }) func getAllPosts() : async [Post] {
+  // Paginated posts query, with window size and start index
+  public query ({ caller }) func getPostsPage(startIndex : Nat, pageSize : Nat) : async PostPage {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view posts");
     };
 
     let isAdmin = AccessControl.isAdmin(accessControlState, caller);
 
-    // Filter out blocked posts for non-admins
-    if (isAdmin) {
-      posts.values().toArray();
-    } else {
-      posts.values().toArray().filter<Post>(
-        func(post : Post) : Bool {
-          not isPostBlocked(post.id);
-        }
-      );
+    let filteredPosts : [Post] = posts.values().toArray().filter<Post>(
+      func(post : Post) : Bool {
+        isAdmin or not isPostBlocked(post.id);
+      }
+    );
+
+    let totalPosts = filteredPosts.size();
+
+    if (totalPosts == 0 or startIndex >= totalPosts) {
+      return { posts = []; nextPageStart = null };
+    };
+
+    let windowEnd = Nat.min(totalPosts, startIndex + pageSize);
+    if (startIndex >= windowEnd) {
+      return { posts = []; nextPageStart = null };
+    };
+
+    let windowPosts = filteredPosts.sliceToArray(startIndex, windowEnd);
+    let nextPage = if (windowEnd < totalPosts) { ?windowEnd } else { null };
+
+    {
+      posts = windowPosts;
+      nextPageStart = nextPage;
     };
   };
 

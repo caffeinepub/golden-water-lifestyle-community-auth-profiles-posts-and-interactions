@@ -1,23 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Post, Comment, Profile, ReactionType, ModerationStatus } from '../backend';
+import type { Post, Comment, Profile, ReactionType, UserRole, ModerationStatus } from '../backend';
 import { ExternalBlob } from '../backend';
-import { useEffect, useRef } from 'react';
 import { Principal } from '@dfinity/principal';
 
-export function useGetContentGuidelines() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<string>({
-    queryKey: ['contentGuidelines'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getContentGuidelines();
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 60 * 60, // 1 hour - guidelines rarely change
-  });
-}
+// ============================================================================
+// Profile Queries
+// ============================================================================
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -54,87 +43,79 @@ export function useSaveCallerUserProfile() {
   });
 }
 
-export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['isCallerAdmin'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.isCallerAdmin();
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 60 * 5, // 5 minutes - admin status doesn't change often
-  });
-}
-
-export function useGetUsernameFromPrincipal(authorPrincipal: Principal | string) {
-  const { actor, isFetching } = useActor();
-  const principalText = typeof authorPrincipal === 'string' ? authorPrincipal : authorPrincipal.toString();
+export function useGetUsernameFromPrincipal(principal: Principal) {
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<string | null>({
-    queryKey: ['username', principalText],
+    queryKey: ['username', principal.toString()],
     queryFn: async () => {
-      if (!actor) return null;
-      try {
-        const principal = typeof authorPrincipal === 'string' 
-          ? Principal.fromText(authorPrincipal) 
-          : authorPrincipal;
-        return await actor.getUsernameFromPrincipal(principal);
-      } catch (error) {
-        console.error('Failed to fetch username:', error);
-        return null;
-      }
+      if (!actor) throw new Error('Actor not available');
+      return actor.getUsernameFromPrincipal(principal);
     },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 60 * 10, // 10 minutes - usernames don't change often
-    retry: false,
+    enabled: !!actor && !actorFetching,
+    staleTime: 5 * 60 * 1000, // 5 minutes - usernames rarely change
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }
 
-export function useGetAllPosts(enableAutoRefresh = false) {
-  const { actor, isFetching } = useActor();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const queryClient = useQueryClient();
+// ============================================================================
+// Content Guidelines Query
+// ============================================================================
 
-  const query = useQuery<Post[]>({
-    queryKey: ['posts'],
+export function useGetContentGuidelines() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<string>({
+    queryKey: ['contentGuidelines'],
     queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllPosts();
+      if (!actor) throw new Error('Actor not available');
+      return actor.getContentGuidelines();
     },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 20, // 20 seconds - keep data fresh but avoid excessive refetches
-    refetchOnWindowFocus: false,
+    enabled: !!actor && !actorFetching,
+    staleTime: Infinity, // Guidelines rarely change
+    gcTime: Infinity,
+    refetchOnWindowFocus: false, // Don't refetch on focus
+    refetchOnMount: false, // Don't refetch on mount if data exists
   });
+}
 
-  useEffect(() => {
-    if (enableAutoRefresh && actor && !isFetching) {
-      intervalRef.current = setInterval(() => {
-        queryClient.invalidateQueries({ queryKey: ['posts'] });
-      }, 30000);
+// ============================================================================
+// Post Queries (Paginated)
+// ============================================================================
 
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
-    }
-  }, [enableAutoRefresh, actor, isFetching, queryClient]);
+export function useGetPostsPage(pageSize: number = 20) {
+  const { actor, isFetching: actorFetching } = useActor();
 
-  return query;
+  return useInfiniteQuery({
+    queryKey: ['posts', 'paginated'],
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getPostsPage(BigInt(pageParam), BigInt(pageSize));
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextPageStart !== undefined && lastPage.nextPageStart !== null
+        ? Number(lastPage.nextPageStart)
+        : undefined;
+    },
+    initialPageParam: 0,
+    enabled: !!actor && !actorFetching,
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false, // Don't auto-refetch when tab becomes visible
+  });
 }
 
 export function useGetPost(postId: bigint) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Post | null>({
     queryKey: ['post', postId.toString()],
     queryFn: async () => {
-      if (!actor) return null;
+      if (!actor) throw new Error('Actor not available');
       return actor.getPost(postId);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
+    staleTime: 60 * 1000, // 1 minute
   });
 }
 
@@ -143,28 +124,21 @@ export function useCreatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ content, image, video }: { content: string; image: ExternalBlob | null; video: ExternalBlob | null }) => {
+    mutationFn: async ({
+      content,
+      image,
+      video,
+    }: {
+      content: string;
+      image: ExternalBlob | null;
+      video: ExternalBlob | null;
+    }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.createPost(content, image, video);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
-}
-
-export function useUpdatePost() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ postId, content, image, video }: { postId: bigint; content: string; image: ExternalBlob | null; video: ExternalBlob | null }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updatePost(postId, content, image, video);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['post', variables.postId.toString()] });
+      // Invalidate only the paginated posts query
+      queryClient.invalidateQueries({ queryKey: ['posts', 'paginated'] });
     },
   });
 }
@@ -178,9 +152,10 @@ export function useDeletePost() {
       if (!actor) throw new Error('Actor not available');
       return actor.deletePost(postId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['reportedPostsAdmin'] });
+    onSuccess: (_, postId) => {
+      // Invalidate paginated posts and the specific post
+      queryClient.invalidateQueries({ queryKey: ['posts', 'paginated'] });
+      queryClient.invalidateQueries({ queryKey: ['post', postId.toString()] });
     },
   });
 }
@@ -194,11 +169,17 @@ export function useReportPost() {
       if (!actor) throw new Error('Actor not available');
       return actor.reportPost(postId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    onSuccess: (_, postId) => {
+      // Invalidate only the specific post and admin views
+      queryClient.invalidateQueries({ queryKey: ['post', postId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['reportedPosts'] });
     },
   });
 }
+
+// ============================================================================
+// Post Reactions
+// ============================================================================
 
 export function useSetPostReaction() {
   const { actor } = useActor();
@@ -209,8 +190,9 @@ export function useSetPostReaction() {
       if (!actor) throw new Error('Actor not available');
       return actor.setPostReaction(postId, reactionType);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    onSuccess: (_, { postId }) => {
+      // Invalidate only the specific post
+      queryClient.invalidateQueries({ queryKey: ['post', postId.toString()] });
     },
   });
 }
@@ -224,22 +206,28 @@ export function useRemovePostReaction() {
       if (!actor) throw new Error('Actor not available');
       return actor.removePostReaction(postId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    onSuccess: (_, postId) => {
+      // Invalidate only the specific post
+      queryClient.invalidateQueries({ queryKey: ['post', postId.toString()] });
     },
   });
 }
 
+// ============================================================================
+// Comment Queries
+// ============================================================================
+
 export function useGetPostComments(postId: bigint) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Comment[]>({
     queryKey: ['comments', postId.toString()],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.getPostComments(postId);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !actorFetching,
+    staleTime: 30 * 1000, // 30 seconds
   });
 }
 
@@ -252,23 +240,9 @@ export function useCreateComment() {
       if (!actor) throw new Error('Actor not available');
       return actor.createComment(postId, content);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['comments', variables.postId.toString()] });
-    },
-  });
-}
-
-export function useUpdateComment() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ commentId, content }: { commentId: bigint; content: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateComment(commentId, content);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (_, { postId }) => {
+      // Invalidate only the specific post's comments
+      queryClient.invalidateQueries({ queryKey: ['comments', postId.toString()] });
     },
   });
 }
@@ -278,13 +252,14 @@ export function useDeleteComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (commentId: bigint) => {
+    mutationFn: async ({ commentId, postId }: { commentId: bigint; postId: bigint }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.deleteComment(commentId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
-      queryClient.invalidateQueries({ queryKey: ['reportedCommentsAdmin'] });
+    onSuccess: (_, { postId }) => {
+      // Invalidate only the specific post's comments
+      queryClient.invalidateQueries({ queryKey: ['comments', postId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['reportedComments'] });
     },
   });
 }
@@ -294,27 +269,42 @@ export function useReportComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (commentId: bigint) => {
+    mutationFn: async ({ commentId, postId }: { commentId: bigint; postId: bigint }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.reportComment(commentId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (_, { postId }) => {
+      // Invalidate the specific post's comments and admin views
+      queryClient.invalidateQueries({ queryKey: ['comments', postId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['reportedComments'] });
     },
   });
 }
+
+// ============================================================================
+// Comment Reactions
+// ============================================================================
 
 export function useSetCommentReaction() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ commentId, reactionType }: { commentId: bigint; reactionType: ReactionType }) => {
+    mutationFn: async ({
+      commentId,
+      reactionType,
+      postId,
+    }: {
+      commentId: bigint;
+      reactionType: ReactionType;
+      postId: bigint;
+    }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.setCommentReaction(commentId, reactionType);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (_, { postId }) => {
+      // Invalidate only the specific post's comments
+      queryClient.invalidateQueries({ queryKey: ['comments', postId.toString()] });
     },
   });
 }
@@ -324,43 +314,88 @@ export function useRemoveCommentReaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (commentId: bigint) => {
+    mutationFn: async ({ commentId, postId }: { commentId: bigint; postId: bigint }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.removeCommentReaction(commentId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+    onSuccess: (_, { postId }) => {
+      // Invalidate only the specific post's comments
+      queryClient.invalidateQueries({ queryKey: ['comments', postId.toString()] });
     },
   });
 }
 
-// Admin moderation hooks
+// ============================================================================
+// Admin Queries
+// ============================================================================
+
+export function useIsCallerAdmin() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['isAdmin'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.isCallerAdmin();
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 5 * 60 * 1000, // 5 minutes - admin status rarely changes
+    refetchOnWindowFocus: false,
+  });
+}
 
 export function useGetReportedPostsAdminView() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Post[]>({
-    queryKey: ['reportedPostsAdmin'],
+    queryKey: ['reportedPosts'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
       return actor.getReportedPostsAdminView();
     },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 30, // 30 seconds
+    enabled: !!actor && !actorFetching,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: false,
   });
 }
 
 export function useGetReportedCommentsAdminView() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
 
   return useQuery<Comment[]>({
-    queryKey: ['reportedCommentsAdmin'],
+    queryKey: ['reportedComments'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
       return actor.getReportedCommentsAdminView();
     },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 30, // 30 seconds
+    enabled: !!actor && !actorFetching,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useGetFlaggedPosts() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<Array<[bigint, ModerationStatus, Post]>>({
+    queryKey: ['flaggedPosts'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      const flaggedEntries = await actor.getFlaggedHateSpeechPosts();
+      const results: Array<[bigint, ModerationStatus, Post]> = [];
+      
+      for (const [postId, status] of flaggedEntries) {
+        const post = await actor.getPost(postId);
+        if (post !== null) {
+          results.push([postId, status, post]);
+        }
+      }
+      
+      return results;
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -374,8 +409,7 @@ export function useClearPostReports() {
       return actor.clearPostReports(postId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportedPostsAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['reportedPosts'] });
     },
   });
 }
@@ -390,34 +424,8 @@ export function useClearCommentReports() {
       return actor.clearCommentReports(commentId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reportedCommentsAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['comments'] });
+      queryClient.invalidateQueries({ queryKey: ['reportedComments'] });
     },
-  });
-}
-
-export function useGetFlaggedPosts() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<Array<[bigint, ModerationStatus, Post]>>({
-    queryKey: ['flaggedPosts'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const flaggedData = await actor.getFlaggedHateSpeechPosts();
-      
-      // Fetch full post data for each flagged post
-      const postsWithData = await Promise.all(
-        flaggedData.map(async ([postId, status]) => {
-          const post = await actor.getPost(postId);
-          return [postId, status, post] as [bigint, ModerationStatus, Post];
-        })
-      );
-      
-      // Filter out any posts that couldn't be fetched
-      return postsWithData.filter(([, , post]) => post !== null);
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 1000 * 30, // 30 seconds
   });
 }
 
@@ -432,7 +440,6 @@ export function useClearFlaggedPost() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['flaggedPosts'] });
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
   });
 }

@@ -31,6 +31,10 @@ export interface Post {
   'reports' : bigint,
   'image' : [] | [ExternalBlob],
 }
+export interface PostPage {
+  'nextPageStart' : [] | [bigint],
+  'posts' : Array<Post>,
+}
 export interface Profile {
   'bio' : string,
   'username' : string,
@@ -86,7 +90,6 @@ export interface _SERVICE {
   >,
   'deleteComment' : ActorMethod<[bigint], boolean>,
   'deletePost' : ActorMethod<[bigint], boolean>,
-  'getAllPosts' : ActorMethod<[], Array<Post>>,
   'getBlockedPosts' : ActorMethod<[], Array<bigint>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [Profile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
@@ -99,6 +102,7 @@ export interface _SERVICE {
   'getModerationStatus' : ActorMethod<[bigint], ModerationStatus>,
   'getPost' : ActorMethod<[bigint], [] | [Post]>,
   'getPostComments' : ActorMethod<[bigint], Array<Comment>>,
+  'getPostsPage' : ActorMethod<[bigint, bigint], PostPage>,
   'getReportedComments' : ActorMethod<[], Array<Comment>>,
   'getReportedCommentsAdminView' : ActorMethod<[], Array<Comment>>,
   'getReportedPosts' : ActorMethod<[], Array<Post>>,

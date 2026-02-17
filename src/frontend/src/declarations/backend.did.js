@@ -25,15 +25,6 @@ export const UserRole = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const ExternalBlob = IDL.Vec(IDL.Nat8);
-export const Post = IDL.Record({
-  'id' : IDL.Nat,
-  'content' : IDL.Text,
-  'video' : IDL.Opt(ExternalBlob),
-  'author' : IDL.Principal,
-  'timestamp' : IDL.Int,
-  'reports' : IDL.Nat,
-  'image' : IDL.Opt(ExternalBlob),
-});
 export const Profile = IDL.Record({
   'bio' : IDL.Text,
   'username' : IDL.Text,
@@ -52,6 +43,19 @@ export const ModerationStatus = IDL.Variant({
   'active' : IDL.Null,
   'blocked' : IDL.Text,
   'flagged' : IDL.Text,
+});
+export const Post = IDL.Record({
+  'id' : IDL.Nat,
+  'content' : IDL.Text,
+  'video' : IDL.Opt(ExternalBlob),
+  'author' : IDL.Principal,
+  'timestamp' : IDL.Int,
+  'reports' : IDL.Nat,
+  'image' : IDL.Opt(ExternalBlob),
+});
+export const PostPage = IDL.Record({
+  'nextPageStart' : IDL.Opt(IDL.Nat),
+  'posts' : IDL.Vec(Post),
 });
 export const ReactionType = IDL.Variant({
   'sad' : IDL.Null,
@@ -103,7 +107,6 @@ export const idlService = IDL.Service({
     ),
   'deleteComment' : IDL.Func([IDL.Nat], [IDL.Bool], []),
   'deletePost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-  'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
   'getBlockedPosts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(Profile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -117,6 +120,7 @@ export const idlService = IDL.Service({
   'getModerationStatus' : IDL.Func([IDL.Nat], [ModerationStatus], ['query']),
   'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(Post)], ['query']),
   'getPostComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
+  'getPostsPage' : IDL.Func([IDL.Nat, IDL.Nat], [PostPage], ['query']),
   'getReportedComments' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
   'getReportedCommentsAdminView' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
   'getReportedPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
@@ -166,15 +170,6 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const ExternalBlob = IDL.Vec(IDL.Nat8);
-  const Post = IDL.Record({
-    'id' : IDL.Nat,
-    'content' : IDL.Text,
-    'video' : IDL.Opt(ExternalBlob),
-    'author' : IDL.Principal,
-    'timestamp' : IDL.Int,
-    'reports' : IDL.Nat,
-    'image' : IDL.Opt(ExternalBlob),
-  });
   const Profile = IDL.Record({
     'bio' : IDL.Text,
     'username' : IDL.Text,
@@ -193,6 +188,19 @@ export const idlFactory = ({ IDL }) => {
     'active' : IDL.Null,
     'blocked' : IDL.Text,
     'flagged' : IDL.Text,
+  });
+  const Post = IDL.Record({
+    'id' : IDL.Nat,
+    'content' : IDL.Text,
+    'video' : IDL.Opt(ExternalBlob),
+    'author' : IDL.Principal,
+    'timestamp' : IDL.Int,
+    'reports' : IDL.Nat,
+    'image' : IDL.Opt(ExternalBlob),
+  });
+  const PostPage = IDL.Record({
+    'nextPageStart' : IDL.Opt(IDL.Nat),
+    'posts' : IDL.Vec(Post),
   });
   const ReactionType = IDL.Variant({
     'sad' : IDL.Null,
@@ -244,7 +252,6 @@ export const idlFactory = ({ IDL }) => {
       ),
     'deleteComment' : IDL.Func([IDL.Nat], [IDL.Bool], []),
     'deletePost' : IDL.Func([IDL.Nat], [IDL.Bool], []),
-    'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
     'getBlockedPosts' : IDL.Func([], [IDL.Vec(IDL.Nat)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(Profile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
@@ -258,6 +265,7 @@ export const idlFactory = ({ IDL }) => {
     'getModerationStatus' : IDL.Func([IDL.Nat], [ModerationStatus], ['query']),
     'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(Post)], ['query']),
     'getPostComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
+    'getPostsPage' : IDL.Func([IDL.Nat, IDL.Nat], [PostPage], ['query']),
     'getReportedComments' : IDL.Func([], [IDL.Vec(Comment)], ['query']),
     'getReportedCommentsAdminView' : IDL.Func(
         [],

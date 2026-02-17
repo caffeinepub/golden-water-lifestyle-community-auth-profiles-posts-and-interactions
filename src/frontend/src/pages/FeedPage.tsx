@@ -5,7 +5,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Loader2, Send, Image as ImageIcon, Video as VideoIcon, X, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { useGetAllPosts, useCreatePost } from '../hooks/useQueries';
+import { useGetPostsPage, useCreatePost, useIsCallerAdmin } from '../hooks/useQueries';
 import PostCard from '../components/posts/PostCard';
 import { LoadingSkeleton, ErrorState, EmptyState } from '../components/state/QueryState';
 import { Alert, AlertDescription } from '../components/ui/alert';
@@ -13,15 +13,16 @@ import ModerationAlert from '../components/moderation/ModerationAlert';
 import { validateImageFile, createPreviewUrl, revokeImageUrl, fileToBackendImage } from '../utils/postImages';
 import { validateVideoFile, fileToBackendVideo, createVideoPreviewUrl, revokeVideoUrl } from '../utils/postVideos';
 import { normalizeModerationMessage, categorizeError } from '../utils/moderation';
+import { perfMark, perfMeasure } from '../utils/perf';
 import type { Post } from '../backend';
 import { ExternalBlob } from '../backend';
 
 // Memoized post list to prevent re-renders during typing/background fetches
-const PostList = memo(({ posts }: { posts: Post[] }) => {
+const PostList = memo(({ posts, isAdmin }: { posts: Post[]; isAdmin: boolean }) => {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <PostCard key={post.id.toString()} post={post} />
+        <PostCard key={post.id.toString()} post={post} isAdmin={isAdmin} />
       ))}
     </div>
   );
@@ -32,7 +33,8 @@ PostList.displayName = 'PostList';
 export default function FeedPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser();
-  const { data: posts, isLoading, error, refetch, isFetching, isRefetching } = useGetAllPosts(true);
+  const { data, isLoading, error, refetch, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetPostsPage(20);
+  const { data: isAdmin = false } = useIsCallerAdmin();
   const createPost = useCreatePost();
   const [content, setContent] = useState('');
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
@@ -47,6 +49,20 @@ export default function FeedPage() {
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Performance instrumentation
+  useEffect(() => {
+    perfMark('feed-initial-render');
+    return () => {
+      perfMeasure('feed-initial-render', 'Feed: Initial render');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (data && !isLoading) {
+      perfMeasure('feed-data-ready', 'Feed: Data ready');
+    }
+  }, [data, isLoading]);
 
   const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -108,6 +124,7 @@ export default function FeedPage() {
     e.preventDefault();
     if ((!content.trim() && !selectedImageFile && !selectedVideoFile) || !isAuthenticated) return;
 
+    perfMark('post-creation');
     setSubmissionError(null);
     setImageError(null);
     setVideoError(null);
@@ -131,6 +148,8 @@ export default function FeedPage() {
         image: imageData,
         video: videoData,
       });
+
+      perfMeasure('post-creation', 'Feed: Post creation complete');
 
       setContent('');
       handleRemoveImage();
@@ -184,6 +203,12 @@ export default function FeedPage() {
     }
   }, [refetch]);
 
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   useEffect(() => {
     return () => {
       if (imagePreviewUrl) {
@@ -195,16 +220,16 @@ export default function FeedPage() {
     };
   }, [imagePreviewUrl, videoPreviewUrl]);
 
-  // Memoize sorted posts to avoid re-sorting on every render
+  // Memoize flattened and sorted posts to avoid re-sorting on every render
   const sortedPosts = useMemo(() => {
-    if (!posts) return [];
-    return [...posts].sort((a, b) => Number(b.timestamp - a.timestamp));
-  }, [posts]);
+    if (!data?.pages) return [];
+    const allPosts = data.pages.flatMap((page) => page.posts);
+    return [...allPosts].sort((a, b) => Number(b.timestamp - a.timestamp));
+  }, [data?.pages]);
 
   const hasExistingPosts = sortedPosts.length > 0;
   const showInitialError = error && !hasExistingPosts;
-  const showBackgroundRefreshError = error && hasExistingPosts;
-  const showBackgroundRefreshing = isRefetching && hasExistingPosts;
+  const isRefetching = isFetching && hasExistingPosts;
 
   if (!isAuthenticated) {
     return (
@@ -393,7 +418,7 @@ export default function FeedPage() {
             </Button>
           </div>
 
-          {showBackgroundRefreshing && (
+          {isRefetching && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               <span>Refreshing posts...</span>
@@ -406,21 +431,33 @@ export default function FeedPage() {
             </Alert>
           )}
 
-          {showBackgroundRefreshError && (
-            <Alert variant="destructive">
-              <AlertDescription>
-                Failed to refresh posts automatically. You can use the Refresh button to try again.
-              </AlertDescription>
-            </Alert>
-          )}
-
           {isLoading && <LoadingSkeleton />}
           {showInitialError && <ErrorState message="Failed to load posts. Please try again." />}
           {!isLoading && !showInitialError && sortedPosts.length === 0 && (
             <EmptyState message="No posts yet. Be the first to share something!" />
           )}
           {!isLoading && !showInitialError && sortedPosts.length > 0 && (
-            <PostList posts={sortedPosts} />
+            <>
+              <PostList posts={sortedPosts} isAdmin={isAdmin} />
+              {hasNextPage && (
+                <div className="flex justify-center pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={handleLoadMore}
+                    disabled={isFetchingNextPage}
+                  >
+                    {isFetchingNextPage ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Loading more...
+                      </>
+                    ) : (
+                      'Load more posts'
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

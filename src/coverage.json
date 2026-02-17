@@ -1,72 +1,106 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T02:09:07.663Z",
+  "generatedAt": "2026-02-17T16:02:21.373Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
+    "total": 5,
     "implemented": 4,
     "items": [
       {
-        "id": "REQ-4",
-        "summary": "Create a new public page titled \"LOVE THE LIQUID\" that includes (1) a prominent title at the top and (2) an embedded view of https://ko-fi.com/painparadise on the page.",
+        "id": "REQ-1",
+        "summary": "Reduce frontend load time and runtime re-rendering by optimizing React component rendering in high-traffic views (especially the feed) and ensuring expensive computations are memoized and/or moved out of render paths.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/LoveTheLiquidPage.tsx"
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/components/posts/PostCard.tsx",
+          "frontend/src/hooks/useBackendImageUrl.ts",
+          "frontend/src/hooks/useBackendExternalBlobUrl.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/LoveTheLiquidPage.tsx"
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/components/posts/PostCard.tsx",
+          "frontend/src/hooks/useBackendImageUrl.ts",
+          "frontend/src/hooks/useBackendExternalBlobUrl.ts"
         ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Optimize React Query usage to reduce unnecessary network calls and UI blocking by tuning caching, refetch behavior, and invalidation patterns for posts, comments, admin views, and guidelines.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/LandingPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Improve feed scalability by adding backend-supported pagination (or windowed retrieval) for posts and updating the frontend to request posts in pages instead of always calling the full post list endpoint.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/FeedPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/FeedPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Improve backend responsiveness for read-heavy operations by reducing avoidable full-map scans and repeated work in common read paths (posts, comments, admin moderation views).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-5",
-        "summary": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page that links to https://ko-fi.com/painparadise.",
+        "summary": "Add lightweight performance instrumentation and sanity checks for key flows (initial load, loading feed, loading post detail, creating a post) so performance improvements can be verified during development.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/LoveTheLiquidPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/LoveTheLiquidPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Add routing for the new \"LOVE THE LIQUID\" page using the existing TanStack Router pattern in frontend/src/App.tsx, with a stable, human-readable path (e.g., \"/love-the-liquid\") and lazy-loading like other non-landing pages.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/App.tsx"
-        ]
-      },
-      {
-        "id": "REQ-7",
-        "summary": "Add a navigation entry for the new \"LOVE THE LIQUID\" page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
-        "status": "implemented",
-        "plannedFiles": [
+          "frontend/src/utils/perf.ts",
           "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/MobileNav.tsx"
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/pages/PostDetailPage.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/utils/perf.ts",
           "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/layout/MobileNav.tsx"
+          "frontend/src/pages/FeedPage.tsx",
+          "frontend/src/pages/PostDetailPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/admin/ReportedCommentsPanel.tsx",
+    "frontend/src/components/comments/CommentItem.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/MobileNav.tsx",
-    "frontend/src/pages/LoveTheLiquidPage.tsx",
+    "frontend/src/components/posts/PostCard.tsx",
+    "frontend/src/config.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useBackendExternalBlobUrl.ts",
+    "frontend/src/hooks/useBackendImageUrl.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/FeedPage.tsx",
+    "frontend/src/pages/PostDetailPage.tsx",
+    "frontend/src/utils/perf.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add a new public monetization page titled “LOVE THE LIQUID” featuring an embedded Ko‑fi view and a clear button link to the Ko‑fi page.
+**Goal:** Improve overall website performance by reducing unnecessary frontend re-renders and network calls, adding backend-supported feed pagination, and streamlining read-heavy backend paths with lightweight instrumentation for verification.
 
 **Planned changes:**
-- Create a new public React page “LOVE THE LIQUID” with an H1 title and an embedded view (iframe/embed) of https://ko-fi.com/painparadise.
-- Add a call-to-action button on the page that links to https://ko-fi.com/painparadise (opens in a new tab with safe link attributes).
-- Add a new lazy-loaded TanStack Router route (e.g., `/love-the-liquid`) in `frontend/src/App.tsx` to render the page.
-- Add navigation links to the new page in both desktop header navigation (`frontend/src/components/layout/AppLayout.tsx`) and the mobile menu (`frontend/src/components/layout/MobileNav.tsx`).
+- Optimize React rendering in high-traffic views (especially the feed) by memoizing expensive computations and preventing post list re-renders during composer typing.
+- Tune React Query caching/refetch/invalidation behavior to reduce unnecessary network requests and UI blocking (including tab-hidden behavior and long-lived data like guidelines).
+- Add backend-supported pagination/windowed retrieval for posts and update the frontend feed to request posts in pages (with “Load more” or infinite scroll) while keeping new post behavior correct.
+- Improve backend responsiveness for read-heavy operations by avoiding full scans and reducing repeated work/N+1 patterns in feed, post detail, and admin moderation views.
+- Add lightweight, development-only performance instrumentation for key flows (initial load, feed/post detail load, creating a post) without exposing debug output in production.
 
-**User-visible outcome:** Users can navigate to “LOVE THE LIQUID” from the site navigation (or via a direct URL), see the Ko‑fi page embedded, and click a button to open the Ko‑fi donation page.
+**User-visible outcome:** The app feels faster and more responsive—typing in the feed composer doesn’t lag, the feed loads quickly and can fetch more posts incrementally, and pages refetch less often while remaining up to date.

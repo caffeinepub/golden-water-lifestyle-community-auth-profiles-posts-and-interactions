@@ -30,27 +30,27 @@ function CommentItem({ comment }: CommentItemProps) {
     setReactionError(null);
     try {
       if (selectedReaction === reactionType) {
-        await removeReaction.mutateAsync(comment.id);
+        await removeReaction.mutateAsync({ commentId: comment.id, postId: comment.postId });
       } else {
-        await setReaction.mutateAsync({ commentId: comment.id, reactionType });
+        await setReaction.mutateAsync({ commentId: comment.id, reactionType, postId: comment.postId });
       }
     } catch (error: any) {
       console.error('Failed to set reaction:', error);
       setReactionError(extractErrorMessage(error));
     }
-  }, [comment.id, selectedReaction, setReaction, removeReaction]);
+  }, [comment.id, comment.postId, selectedReaction, setReaction, removeReaction]);
 
   const handleReport = useCallback(async () => {
     if (!window.confirm('Are you sure you want to report this comment?')) return;
     
     setReportError(null);
     try {
-      await reportComment.mutateAsync(comment.id);
+      await reportComment.mutateAsync({ commentId: comment.id, postId: comment.postId });
     } catch (error: any) {
       console.error('Failed to report comment:', error);
       setReportError(extractErrorMessage(error));
     }
-  }, [comment.id, reportComment]);
+  }, [comment.id, comment.postId, reportComment]);
 
   const formattedDate = new Date(Number(comment.timestamp) / 1000000).toLocaleString();
 
@@ -66,13 +66,13 @@ function CommentItem({ comment }: CommentItemProps) {
           </div>
           {comment.reports > 0n && (
             <span className="text-xs text-destructive font-medium whitespace-nowrap">
-              {comment.reports.toString()} report{comment.reports > 1n ? 's' : ''}
+              {comment.reports.toString()} {Number(comment.reports) === 1 ? 'report' : 'reports'}
             </span>
           )}
         </div>
       </CardHeader>
       <CardContent>
-        <p className="whitespace-pre-wrap break-words">{comment.content}</p>
+        <p className="text-sm whitespace-pre-wrap break-words">{comment.content}</p>
         {reportError && (
           <Alert variant="destructive" className="mt-4">
             <AlertDescription>{reportError}</AlertDescription>
@@ -84,37 +84,29 @@ function CommentItem({ comment }: CommentItemProps) {
           </Alert>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-0">
         <ReactionBar
           selectedReaction={selectedReaction}
           onReactionClick={handleReactionClick}
-          disabled={setReaction.isPending || removeReaction.isPending}
           isPending={setReaction.isPending || removeReaction.isPending}
         />
-        {!isAuthor && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReport}
-            disabled={reportComment.isPending}
-            className="gap-2"
-          >
-            {reportComment.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Flag className="h-4 w-4" />
-            )}
-            <span className="hidden sm:inline">Report</span>
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleReport}
+          disabled={reportComment.isPending}
+          className="w-full sm:w-auto"
+        >
+          {reportComment.isPending ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Flag className="h-4 w-4 mr-2" />
+          )}
+          Report
+        </Button>
       </CardFooter>
     </Card>
   );
 }
 
-// Memoize with shallow comparison for Comment object
-export default memo(CommentItem, (prevProps, nextProps) => {
-  return prevProps.comment.id === nextProps.comment.id &&
-         prevProps.comment.reports === nextProps.comment.reports &&
-         prevProps.comment.content === nextProps.comment.content;
-});
+export default memo(CommentItem);

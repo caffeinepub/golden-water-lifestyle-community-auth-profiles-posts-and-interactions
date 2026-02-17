@@ -1,71 +1,109 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add public \"LOVE THE LIQUID\" Ko-fi monetization page",
+  "title": "LOVE THE LIQUID — Frontend Performance Optimization Plan",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Create a new public \"LOVE THE LIQUID\" page with a prominent title and embedded Ko-fi view.",
+      "id": "REQ-1",
+      "summary": "Reduce feed and other high-traffic view re-renders by memoizing expensive work and stabilizing component props/state boundaries.",
       "acceptanceCriteria": [
-        "A new React page component exists for the monetization page and renders a visible H1 title \"LOVE THE LIQUID\".",
-        "The page embeds the Ko-fi destination https://ko-fi.com/painparadise directly within the page content (e.g., via iframe/embed), and the embed loads without crashing the app.",
-        "The page is accessible without requiring authentication (consistent with existing public pages like Tips/Facts)."
+        "Typing in the Feed post composer does not trigger re-rendering of the entire post list (confirm via React DevTools profiler: post list components remain stable while typing).",
+        "Any list sorting/filtering that currently runs on every render is memoized and only recomputes when its inputs change.",
+        "No unnecessary object URL creation/revocation loops occur during normal navigation and posting flows."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/LoveTheLiquidPage.tsx",
-          "operation": "create",
-          "description": "Create a new public page component rendering an H1 \"LOVE THE LIQUID\" and an embedded view of https://ko-fi.com/painparadise (e.g., responsive iframe with safe sandbox/referrer policy). Use existing shadcn-ui components (e.g., Card) to match app styling—Verify the component's usage instructions before implementing."
+          "path": "frontend/src/pages/FeedPage.tsx",
+          "operation": "modify",
+          "description": "Isolate the composer UI from the feed list rendering more strongly (stable props + memo boundaries), avoid creating new derived arrays/handlers on each keystroke, and lift cross-cutting state (e.g., admin flag) to prevent per-card query subscriptions from cascading re-renders."
+        },
+        {
+          "path": "frontend/src/components/posts/PostCard.tsx",
+          "operation": "modify",
+          "description": "Reduce per-item re-render triggers by removing per-card global queries (e.g., admin check) and passing stable, precomputed props from the parent; keep expensive derived values (e.g., formatted date, display name selection) memo-friendly and ensure memoization remains effective."
+        },
+        {
+          "path": "frontend/src/hooks/useBackendImageUrl.ts",
+          "operation": "modify",
+          "description": "Harden URL lifecycle management to prevent accidental create/revoke loops when blob references change frequently (ensure effect dependencies and cleanup behavior are correct and stable under rapid list refreshes)."
+        },
+        {
+          "path": "frontend/src/hooks/useBackendExternalBlobUrl.ts",
+          "operation": "modify",
+          "description": "Harden URL lifecycle management to prevent accidental create/revoke loops when blob references change frequently (ensure effect dependencies and cleanup behavior are correct and stable under rapid list refreshes)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Tune React Query caching/refetching and invalidation to reduce unnecessary calls and UI blocking across posts, comments, admin views, and guidelines.",
+      "acceptanceCriteria": [
+        "Posts auto-refresh (currently enabled via query invalidation interval) does not refetch more frequently than necessary and does not refetch while the app is not visible (e.g., when the tab is hidden).",
+        "Queries that are unlikely to change frequently (e.g., content guidelines) retain long stale times and do not refetch on window focus (verify network panel shows no repeated guideline fetches during routine navigation).",
+        "Mutations invalidate only the minimal required query keys (e.g., creating a comment invalidates that post’s comment query rather than all comments)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Update React Query hooks to: (1) avoid manual interval-based invalidation for posts; prefer query-managed refresh that pauses when the tab is hidden, (2) set explicit refetch-on-focus behavior for infrequently-changing queries (e.g., guidelines) and for admin views, and (3) tighten invalidation scopes (avoid broad invalidations like all 'comments' when only one post’s comments need refresh)."
+        },
+        {
+          "path": "frontend/src/pages/LandingPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the guidelines view relies on the tuned query behavior (long stale time, no focus refetch) without introducing any new user-facing text; keep UI changes minimal."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Switch feed loading from full-list retrieval to paged loading using backend-supported pagination, with a UX to load more and correct new-post appearance.",
+      "acceptanceCriteria": [
+        "Backend exposes a paginated posts query (e.g., accepts page size and cursor/offset) that returns a stable ordering and enough information to request the next page.",
+        "Frontend feed loads an initial page quickly and provides a way to fetch additional pages (infinite scroll or “Load more”).",
+        "Existing behavior remains correct: newly created posts appear without requiring a full refetch of all historical posts."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a paginated/infinite posts query hook using the existing backend pagination capability (e.g., getPostsPage) and adjust post-creation mutation handling so the new post appears promptly (update the first page cache and/or minimally refetch only the necessary page keys)."
+        },
+        {
+          "path": "frontend/src/pages/FeedPage.tsx",
+          "operation": "modify",
+          "description": "Update the feed to request posts in pages and render a 'Load more' control (or infinite behavior) backed by the new paginated query hook; keep sorting/ordering stable and avoid full historical refetches when a new post is created."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page linking to Ko-fi.",
+      "summary": "Add lightweight, development-only performance instrumentation for initial load, feed load, post detail load, and post creation flow.",
       "acceptanceCriteria": [
-        "A button is visible on the \"LOVE THE LIQUID\" page and uses English user-facing text.",
-        "Clicking the button opens https://ko-fi.com/painparadise (preferably in a new tab using safe link attributes)."
+        "Frontend includes simple timing logs (development-only) around initial route render and key data fetch completion (feed/posts and post detail/comments).",
+        "Backend includes minimal logging (where appropriate) or structured code organization to make hot paths identifiable without adding heavy overhead.",
+        "No user-facing text includes debug/perf output in production builds."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/LoveTheLiquidPage.tsx",
-          "operation": "modify",
-          "description": "Add a prominent call-to-action button with English text that links to https://ko-fi.com/painparadise and opens in a new tab with safe rel attributes. Compose using the existing shadcn-ui Button component—Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Register a lazy-loaded TanStack Router route for the new \"LOVE THE LIQUID\" page at a stable path.",
-      "acceptanceCriteria": [
-        "Navigating directly to the new route path renders the \"LOVE THE LIQUID\" page.",
-        "The new page is lazy-loaded similarly to existing routes (e.g., Tips/Facts) and does not increase initial bundle unnecessarily."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a lazy import for LoveTheLiquidPage and register a new TanStack Router route at a stable, human-readable path like \"/love-the-liquid\", included in the routeTree alongside existing lazy-loaded pages."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Add navigation links to the \"LOVE THE LIQUID\" page in both desktop header nav and mobile menu.",
-      "acceptanceCriteria": [
-        "Desktop header shows a nav link that routes to the \"LOVE THE LIQUID\" page.",
-        "Mobile menu shows a nav link that routes to the \"LOVE THE LIQUID\" page and closes the menu when clicked."
-      ],
-      "file_operations": [
+          "path": "frontend/src/utils/perf.ts",
+          "operation": "create",
+          "description": "Create a small dev-only performance helper (guarded by build-time dev checks) to mark/measure route render and data-ready timings and to standardize console logging without leaking debug output into production."
+        },
         {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add a new desktop header navigation <Link> entry labeled \"LOVE THE LIQUID\" pointing to \"/love-the-liquid\" and keep it visible for unauthenticated users (like Tips/Facts)."
+          "description": "Add dev-only timing logs for initial app/layout mount and route transitions (without changing user-facing UI text) using the shared perf helper."
         },
         {
-          "path": "frontend/src/components/layout/MobileNav.tsx",
+          "path": "frontend/src/pages/FeedPage.tsx",
           "operation": "modify",
-          "description": "Add a new mobile menu <Link> entry labeled \"LOVE THE LIQUID\" pointing to \"/love-the-liquid\" and ensure it calls onClose when clicked (consistent with other mobile links)."
+          "description": "Add dev-only timing logs for: first feed render, initial posts page data-ready, and post creation completion using the shared perf helper; ensure logs are not shown in the UI and do not run in production builds."
+        },
+        {
+          "path": "frontend/src/pages/PostDetailPage.tsx",
+          "operation": "modify",
+          "description": "Add dev-only timing logs for: post detail render, post data-ready, and comments data-ready using the shared perf helper; ensure logs are not shown in the UI and do not run in production builds."
         }
       ]
     }

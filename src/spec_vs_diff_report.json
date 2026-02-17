@@ -1,32 +1,85 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T02:09:07.660Z",
-  "summary": "The diff adds a new LoveTheLiquidPage with an H1 title, an embedded Ko-fi iframe, and a CTA button linking to Ko-fi. It also adds a lazy-loaded TanStack Router route at /love-the-liquid and adds navigation links in both the desktop header and the mobile menu (with menu close on click).",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-17T16:02:21.368Z",
+  "summary": "Diff implements several frontend performance optimizations (memoized feed post list, memoized sorting, React Query caching tweaks, dev-only perf logging utilities) and adds new blob URL hooks to avoid object URL leaks. However, evidence for backend pagination and backend read-path optimizations is not present in the provided backend diff summary, and some changes appear to introduce non-requested functionality (e.g., migration module, UTM tracking, reaction support/UI additions).",
+  "missing_requirements": [
     {
-      "description": "Added additional monetization-page content beyond the requested title/embed/button (e.g., 'Why Support?' section and extra descriptive/support text).",
-      "reason": "REQ-4/5 only request a prominent title, an embedded Ko-fi view, and a CTA button link; the extra sections/content are not requested.",
+      "id": "REQ-3",
+      "requirement": "Backend exposes a paginated posts query (accepting page size and cursor/offset) that returns stable ordering and enough info to request the next page.",
+      "reason": "Frontend now calls `actor.getPostsPage(...)`, and backend defines a `PostPage` type, but the diff summary for `backend/main.mo` does not show an implemented `getPostsPage` method or stable ordering/cursor logic.",
       "evidence": [
-        "frontend/src/pages/LoveTheLiquidPage.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "backend/main.mo (truncated)"
       ]
     },
     {
-      "description": "Added decorative icons and styling elements (Heart/ExternalLink icons, gradient card header) not specified in the request.",
-      "reason": "The BuildRequest does not ask for icons or specific visual embellishments; only functional UI elements are required.",
+      "id": "REQ-4",
+      "requirement": "Improve backend responsiveness for read-heavy operations by reducing avoidable full-map scans/repeated work in read paths (posts, comments, admin moderation views), including avoiding N+1 patterns in admin views.",
+      "reason": "The backend diff excerpt shows type additions (e.g., `PostPage`) and existing query methods, but does not provide evidence of changes to read endpoints (posts/comments/admin) to avoid scans or N+1 patterns when pagination/cursors are provided.",
       "evidence": [
-        "frontend/src/pages/LoveTheLiquidPage.tsx"
+        "backend/main.mo (truncated)",
+        "frontend-file-summaries.txt (mentions admin flagged posts fetching posts individually)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Backend includes minimal logging (where appropriate) or structured organization to make hot paths identifiable, without heavy overhead.",
+      "reason": "Frontend dev-only perf instrumentation is present, but the backend diff summary does not show any added minimal logging/structural hot-path identifiers for key backend flows.",
+      "evidence": [
+        "frontend/src/utils/perf.ts",
+        "backend/main.mo (truncated)"
       ]
     }
   ],
-  "confidence": 0.78,
+  "hallucinated_features": [
+    {
+      "description": "Added a backend migration module/file (`backend/migration.mo`) and wired migration into `backend/main.mo`.",
+      "reason": "BuildRequest did not ask for migrations/state migration support; it only requested performance optimizations and explicitly constrained backend architecture to a single actor in `backend/main.mo` (adding a separate migration module is not requested).",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "description": "UTM-tracked external attribution link in AppLayout (\"UTM-tracked caffeine.ai attribution\").",
+      "reason": "Not requested by any performance requirement; also risks being interpreted as tracking/analytics-adjacent behavior, which is outside scope.",
+      "evidence": [
+        "frontend-file-summaries.txt (AppLayout description)"
+      ]
+    },
+    {
+      "description": "Multi-reaction support via `ReactionBar` wired into comment/post UI.",
+      "reason": "Not requested (non-goal: avoid new product features unrelated to performance). Reaction functionality/UI is a feature addition beyond performance tuning.",
+      "evidence": [
+        "frontend/src/components/comments/CommentItem.tsx",
+        "frontend/src/components/posts/PostCard.tsx",
+        "frontend-file-summaries.txt (CommentItem/PostCard descriptions)"
+      ]
+    },
+    {
+      "description": "Admin flagged posts view now \"returns proper tuples\" by fetching posts individually per flagged item.",
+      "reason": "Not requested for performance and may worsen performance via N+1 querying; BuildRequest instead asked to avoid N+1 patterns in admin views.",
+      "evidence": [
+        "frontend-file-summaries.txt (useQueries.ts description about fetching posts individually)"
+      ]
+    }
+  ],
+  "confidence": 0.68,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
+    "frontend/src/components/admin/ReportedCommentsPanel.tsx",
+    "frontend/src/components/comments/CommentItem.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/layout/MobileNav.tsx",
-    "frontend/src/pages/LoveTheLiquidPage.tsx",
+    "frontend/src/components/posts/PostCard.tsx",
+    "frontend/src/hooks/useBackendExternalBlobUrl.ts",
+    "frontend/src/hooks/useBackendImageUrl.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/FeedPage.tsx",
+    "frontend/src/pages/PostDetailPage.tsx",
+    "frontend/src/utils/perf.ts",
     "project_state.json"
   ]
 }

@@ -6,9 +6,10 @@ import ProfileGate from '../profile/ProfileGate';
 import AgeAcknowledgementGate from '../age/AgeAcknowledgementGate';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { useIsCallerAdmin } from '../../hooks/useQueries';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MobileNav from './MobileNav';
 import { Button } from '../ui/button';
+import { perfMark, perfMeasure } from '../../utils/perf';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -18,6 +19,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const { isAuthenticated } = useCurrentUser();
   const { data: isAdmin } = useIsCallerAdmin();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Performance instrumentation
+  useEffect(() => {
+    perfMark('app-layout-mount');
+    return () => {
+      perfMeasure('app-layout-mount', 'AppLayout: Initial mount');
+    };
+  }, []);
 
   return (
     <ProfileGate>

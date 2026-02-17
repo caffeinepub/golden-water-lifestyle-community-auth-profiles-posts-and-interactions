@@ -28,13 +28,13 @@ export default function ReportedCommentsPanel() {
     }
   };
 
-  const handleDeleteComment = async (commentId: bigint) => {
+  const handleDeleteComment = async (commentId: bigint, postId: bigint) => {
     if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
       return;
     }
     setProcessingId(commentId);
     try {
-      await deleteCommentMutation.mutateAsync(commentId);
+      await deleteCommentMutation.mutateAsync({ commentId, postId });
       toast.success('Comment deleted successfully');
     } catch (error: any) {
       toast.error(error?.message || 'Failed to delete comment');
@@ -99,7 +99,7 @@ export default function ReportedCommentsPanel() {
                 <Button
                   size="sm"
                   variant="destructive"
-                  onClick={() => handleDeleteComment(comment.id)}
+                  onClick={() => handleDeleteComment(comment.id, comment.postId)}
                   disabled={processingId === comment.id}
                 >
                   <Trash2 className="h-4 w-4 mr-1" />

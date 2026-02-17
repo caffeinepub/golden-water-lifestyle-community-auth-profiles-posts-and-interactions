@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Separator } from '../components/ui/separator';
 import { ArrowLeft, Loader2, Send } from 'lucide-react';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { useGetPost, useGetPostComments, useCreateComment } from '../hooks/useQueries';
+import { useGetPost, useGetPostComments, useCreateComment, useIsCallerAdmin } from '../hooks/useQueries';
 import PostCard from '../components/posts/PostCard';
 import CommentItem from '../components/comments/CommentItem';
 import { LoadingSkeleton, ErrorState, EmptyState } from '../components/state/QueryState';
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { extractErrorMessage } from '../utils/postImages';
+import { perfMark, perfMeasure } from '../utils/perf';
 
 export default function PostDetailPage() {
   const { postId } = useParams({ from: '/post/$postId' });
@@ -19,9 +20,30 @@ export default function PostDetailPage() {
   const { isAuthenticated } = useCurrentUser();
   const { data: post, isLoading: postLoading, error: postError } = useGetPost(BigInt(postId));
   const { data: comments, isLoading: commentsLoading, error: commentsError } = useGetPostComments(BigInt(postId));
+  const { data: isAdmin = false } = useIsCallerAdmin();
   const createComment = useCreateComment();
   const [commentContent, setCommentContent] = useState('');
   const [commentError, setCommentError] = useState<string | null>(null);
+
+  // Performance instrumentation
+  useEffect(() => {
+    perfMark('post-detail-render');
+    return () => {
+      perfMeasure('post-detail-render', 'PostDetail: Initial render');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (post && !postLoading) {
+      perfMeasure('post-detail-data-ready', 'PostDetail: Post data ready');
+    }
+  }, [post, postLoading]);
+
+  useEffect(() => {
+    if (comments && !commentsLoading) {
+      perfMeasure('post-detail-comments-ready', 'PostDetail: Comments data ready');
+    }
+  }, [comments, commentsLoading]);
 
   const handleCreateComment = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +117,7 @@ export default function PostDetailPage() {
       </Button>
 
       <div className="space-y-6">
-        <PostCard post={post} />
+        <PostCard post={post} isAdmin={isAdmin} />
 
         <Separator />
 

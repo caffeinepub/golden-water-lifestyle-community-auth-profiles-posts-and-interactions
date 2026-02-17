@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { MessageCircle, Flag, Loader2, Trash2 } from 'lucide-react';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { useReportPost, useSetPostReaction, useRemovePostReaction, useDeletePost, useIsCallerAdmin, useGetUsernameFromPrincipal } from '../../hooks/useQueries';
+import { useReportPost, useSetPostReaction, useRemovePostReaction, useDeletePost, useGetUsernameFromPrincipal } from '../../hooks/useQueries';
 import { Alert, AlertDescription } from '../ui/alert';
 import { extractErrorMessage } from '../../utils/postImages';
 import { useBackendImageUrl } from '../../hooks/useBackendImageUrl';
@@ -14,12 +14,12 @@ import type { Post, ReactionType } from '../../backend';
 
 interface PostCardProps {
   post: Post;
+  isAdmin: boolean;
 }
 
-function PostCard({ post }: PostCardProps) {
+function PostCard({ post, isAdmin }: PostCardProps) {
   const navigate = useNavigate();
   const { identity } = useCurrentUser();
-  const { data: isAdmin } = useIsCallerAdmin();
   const reportPost = useReportPost();
   const deletePost = useDeletePost();
   const setReaction = useSetPostReaction();
@@ -66,7 +66,7 @@ function PostCard({ post }: PostCardProps) {
   }, [post.id, reportPost]);
 
   const handleDelete = useCallback(async () => {
-    if (!window.confirm('Are you sure you want to delete this post? This cannot be undone.')) return;
+    if (!window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) return;
     
     setDeleteError(null);
     try {
@@ -77,33 +77,45 @@ function PostCard({ post }: PostCardProps) {
     }
   }, [post.id, deletePost]);
 
-  const handleViewComments = useCallback(() => {
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    if (
+      (e.target as HTMLElement).closest('button') ||
+      (e.target as HTMLElement).closest('a') ||
+      (e.target as HTMLElement).closest('video')
+    ) {
+      return;
+    }
     navigate({ to: '/post/$postId', params: { postId: post.id.toString() } });
   }, [navigate, post.id]);
 
+  const displayName = username || `User ${post.author.toString().slice(0, 8)}...`;
   const formattedDate = new Date(Number(post.timestamp) / 1000000).toLocaleString();
 
-  // Determine display name
-  const displayName = isAuthor 
-    ? 'You' 
-    : username 
-      ? username 
-      : `User ${post.author.toString().slice(0, 8)}...`;
-
   return (
-    <Card>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleCardClick}>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">
-              {displayName}
-            </p>
+            <p className="font-semibold truncate">{displayName}</p>
             <p className="text-xs text-muted-foreground">{formattedDate}</p>
           </div>
-          {post.reports > 0n && (
-            <span className="text-xs text-destructive font-medium whitespace-nowrap">
-              {post.reports.toString()} report{post.reports > 1n ? 's' : ''}
-            </span>
+          {canDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              disabled={deletePost.isPending}
+              className="shrink-0"
+            >
+              {deletePost.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </Button>
           )}
         </div>
       </CardHeader>
@@ -113,7 +125,7 @@ function PostCard({ post }: PostCardProps) {
           <img
             src={imageUrl}
             alt="Post attachment"
-            className="max-h-96 w-full object-contain rounded-lg border"
+            className="w-full rounded-lg max-h-96 object-contain"
             loading="lazy"
             decoding="async"
           />
@@ -122,7 +134,7 @@ function PostCard({ post }: PostCardProps) {
           <video
             src={videoUrl}
             controls
-            className="max-h-96 w-full rounded-lg border"
+            className="w-full rounded-lg max-h-96"
             preload="metadata"
           />
         )}
@@ -142,53 +154,42 @@ function PostCard({ post }: PostCardProps) {
           </Alert>
         )}
       </CardContent>
-      <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+      <CardFooter className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-0">
         <ReactionBar
           selectedReaction={selectedReaction}
           onReactionClick={handleReactionClick}
-          disabled={setReaction.isPending || removeReaction.isPending}
+          isPending={setReaction.isPending || removeReaction.isPending}
         />
-        <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            onClick={handleViewComments}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate({ to: '/post/$postId', params: { postId: post.id.toString() } });
+            }}
             className="flex-1 sm:flex-initial"
           >
-            <MessageCircle className="mr-2 h-4 w-4" />
-            Comments
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Comment
           </Button>
-          {canDelete ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDelete}
-              disabled={deletePost.isPending}
-              className="flex-1 sm:flex-initial text-destructive hover:text-destructive"
-            >
-              {deletePost.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="mr-2 h-4 w-4" />
-              )}
-              Delete
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReport}
-              disabled={reportPost.isPending}
-              className="flex-1 sm:flex-initial"
-            >
-              {reportPost.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Flag className="mr-2 h-4 w-4" />
-              )}
-              Report
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleReport();
+            }}
+            disabled={reportPost.isPending}
+            className="flex-1 sm:flex-initial"
+          >
+            {reportPost.isPending ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Flag className="h-4 w-4 mr-2" />
+            )}
+            Report
+          </Button>
         </div>
       </CardFooter>
     </Card>

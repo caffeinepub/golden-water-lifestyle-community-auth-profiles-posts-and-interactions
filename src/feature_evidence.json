@@ -2,10 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-new-public-page-titled-love-the-liquid-that-includes-1-a-prominent-title-at-the-top-and-2-an-embedded-view-of-https-ko-fi-com-painparadise-on-the-page",
-      "featureTitle": "Create a new public page titled \"LOVE THE LIQUID\" that includes (1) a prominent title at the top and (2) an embedded view of https://ko-fi.com/painparadise on the page.",
+      "featureId": "feature-reduce-frontend-load-time-and-runtime-re-rendering-by-optimizing-react-component-rendering-in-high-traffic-views-especially-the-feed-and-ensuring-expensive-computations-are-memoized-and-or-moved-out-of-render-paths",
+      "featureTitle": "Reduce frontend load time and runtime re-rendering by optimizing React component rendering in high-traffic views (especially the feed) and ensuring expensive computations are memoized and/or moved out of render paths.",
       "files": [
-        "frontend/src/pages/LoveTheLiquidPage.tsx"
+        "frontend/src/components/posts/PostCard.tsx",
+        "frontend/src/hooks/useBackendExternalBlobUrl.ts",
+        "frontend/src/hooks/useBackendImageUrl.ts",
+        "frontend/src/pages/FeedPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,15 +20,59 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-clear-call-to-action-button-on-the-love-the-liquid-page-that-links-to-https-ko-fi-com-painparadise",
-      "featureTitle": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page that links to https://ko-fi.com/painparadise.",
+      "featureId": "feature-optimize-react-query-usage-to-reduce-unnecessary-network-calls-and-ui-blocking-by-tuning-caching-refetch-behavior-and-invalidation-patterns-for-posts-comments-admin-views-and-guidelines",
+      "featureTitle": "Optimize React Query usage to reduce unnecessary network calls and UI blocking by tuning caching, refetch behavior, and invalidation patterns for posts, comments, admin views, and guidelines.",
       "files": [
-        "frontend/src/pages/LoveTheLiquidPage.tsx"
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-improve-feed-scalability-by-adding-backend-supported-pagination-or-windowed-retrieval-for-posts-and-updating-the-frontend-to-request-posts-in-pages-instead-of-always-calling-the-full-post-list-endpoint",
+      "featureTitle": "Improve feed scalability by adding backend-supported pagination (or windowed retrieval) for posts and updating the frontend to request posts in pages instead of always calling the full post list endpoint.",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/FeedPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-lightweight-performance-instrumentation-and-sanity-checks-for-key-flows-initial-load-loading-feed-loading-post-detail-creating-a-post-so-performance-improvements-can-be-verified-during-development",
+      "featureTitle": "Add lightweight performance instrumentation and sanity checks for key flows (initial load, loading feed, loading post detail, creating a post) so performance improvements can be verified during development.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/pages/FeedPage.tsx",
+        "frontend/src/pages/PostDetailPage.tsx",
+        "frontend/src/utils/perf.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -38,47 +85,6 @@
       ],
       "testIds": [
         "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-routing-for-the-new-love-the-liquid-page-using-the-existing-tanstack-router-pattern-in-frontend-src-app-tsx-with-a-stable-human-readable-path-e-g-love-the-liquid-and-lazy-loading-like-other-non-landing-pages",
-      "featureTitle": "Add routing for the new \"LOVE THE LIQUID\" page using the existing TanStack Router pattern in frontend/src/App.tsx, with a stable, human-readable path (e.g., \"/love-the-liquid\") and lazy-loading like other non-landing pages.",
-      "files": [
-        "frontend/src/App.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-navigation-entry-for-the-new-love-the-liquid-page-to-both-the-desktop-header-navigation-frontend-src-components-layout-applayout-tsx-and-the-mobile-menu-frontend-src-components-layout-mobilenav-tsx",
-      "featureTitle": "Add a navigation entry for the new \"LOVE THE LIQUID\" page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
-      "files": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/components/layout/MobileNav.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
       ],
       "confidence": "high"
     }

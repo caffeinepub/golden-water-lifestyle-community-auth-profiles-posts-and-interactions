@@ -1,105 +1,116 @@
 {
   "kind": "build_request",
-  "title": "Add \"LOVE THE LIQUID\" monetization page with embedded Ko‑fi and button link",
+  "title": "Optimize Website Performance (Frontend + Backend)",
+  "projectName": "LOVE THE LIQUID",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-4",
-      "text": "Create a new public page titled \"LOVE THE LIQUID\" that includes (1) a prominent title at the top and (2) an embedded view of https://ko-fi.com/painparadise on the page.",
+      "id": "REQ-1",
+      "text": "Reduce frontend load time and runtime re-rendering by optimizing React component rendering in high-traffic views (especially the feed) and ensuring expensive computations are memoized and/or moved out of render paths.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5",
-          "msg-6",
-          "msg-9",
-          "msg-11"
+          "msg-1"
         ],
         "quotes": [
-          "ADD monetizing FEATURES https://ko-fi.com/painparadise  CALL IT LOVE THE LIQUID",
-          "EMBED, monetizing, NEW PAGE",
-          "1, YES IN A BUTTON, YES, TITLE",
-          "BULID"
+          "PERFORMANCE",
+          "ALL",
+          "BULID IT"
         ]
       },
       "acceptanceCriteria": [
-        "A new React page component exists for the monetization page and renders a visible H1 title \"LOVE THE LIQUID\".",
-        "The page embeds the Ko-fi destination https://ko-fi.com/painparadise directly within the page content (e.g., via iframe/embed), and the embed loads without crashing the app.",
-        "The page is accessible without requiring authentication (consistent with existing public pages like Tips/Facts)."
+        "Typing in the Feed post composer does not trigger re-rendering of the entire post list (confirm via React DevTools profiler: post list components remain stable while typing).",
+        "Any list sorting/filtering that currently runs on every render is memoized and only recomputes when its inputs change.",
+        "No unnecessary object URL creation/revocation loops occur during normal navigation and posting flows."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Optimize React Query usage to reduce unnecessary network calls and UI blocking by tuning caching, refetch behavior, and invalidation patterns for posts, comments, admin views, and guidelines.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "PERFORMANCE",
+          "ALL"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Posts auto-refresh (currently enabled via query invalidation interval) does not refetch more frequently than necessary and does not refetch while the app is not visible (e.g., when the tab is hidden).",
+        "Queries that are unlikely to change frequently (e.g., content guidelines) retain long stale times and do not refetch on window focus (verify network panel shows no repeated guideline fetches during routine navigation).",
+        "Mutations invalidate only the minimal required query keys (e.g., creating a comment invalidates that post’s comment query rather than all comments)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Improve feed scalability by adding backend-supported pagination (or windowed retrieval) for posts and updating the frontend to request posts in pages instead of always calling the full post list endpoint.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "PERFORMANCE",
+          "ALL"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend exposes a paginated posts query (e.g., accepts page size and cursor/offset) that returns a stable ordering and enough information to request the next page.",
+        "Frontend feed loads an initial page quickly and provides a way to fetch additional pages (infinite scroll or “Load more”).",
+        "Existing behavior remains correct: newly created posts appear without requiring a full refetch of all historical posts."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Improve backend responsiveness for read-heavy operations by reducing avoidable full-map scans and repeated work in common read paths (posts, comments, admin moderation views).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "PERFORMANCE",
+          "ALL"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Common read endpoints used by the feed and post detail views complete without scanning all stored items when pagination/cursors are provided.",
+        "Admin moderation views avoid N+1 query patterns where possible (e.g., avoid fetching each post individually when building flagged/reported lists).",
+        "No changes break existing access control checks (unauthorized callers still trap/are rejected as before)."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Add a clear call-to-action button on the \"LOVE THE LIQUID\" page that links to https://ko-fi.com/painparadise.",
-      "target": "frontend",
+      "text": "Add lightweight performance instrumentation and sanity checks for key flows (initial load, loading feed, loading post detail, creating a post) so performance improvements can be verified during development.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-9"
+          "msg-1"
         ],
         "quotes": [
-          "1, YES IN A BUTTON, YES, TITLE"
+          "PERFORMANCE",
+          "ALL"
         ]
       },
       "acceptanceCriteria": [
-        "A button is visible on the \"LOVE THE LIQUID\" page and uses English user-facing text.",
-        "Clicking the button opens https://ko-fi.com/painparadise (preferably in a new tab using safe link attributes)."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add routing for the new \"LOVE THE LIQUID\" page using the existing TanStack Router pattern in frontend/src/App.tsx, with a stable, human-readable path (e.g., \"/love-the-liquid\") and lazy-loading like other non-landing pages.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5",
-          "msg-6",
-          "msg-9",
-          "msg-11"
-        ],
-        "quotes": [
-          "CALL IT LOVE THE LIQUID",
-          "EMBED, monetizing, NEW PAGE",
-          "1, YES IN A BUTTON, YES, TITLE",
-          "BULID"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Navigating directly to the new route path renders the \"LOVE THE LIQUID\" page.",
-        "The new page is lazy-loaded similarly to existing routes (e.g., Tips/Facts) and does not increase initial bundle unnecessarily."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Add a navigation entry for the new \"LOVE THE LIQUID\" page to both the desktop header navigation (frontend/src/components/layout/AppLayout.tsx) and the mobile menu (frontend/src/components/layout/MobileNav.tsx).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5",
-          "msg-6",
-          "msg-9",
-          "msg-11"
-        ],
-        "quotes": [
-          "CALL IT LOVE THE LIQUID",
-          "EMBED, monetizing, NEW PAGE",
-          "1, YES IN A BUTTON, YES, TITLE",
-          "BULID"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Desktop header shows a nav link that routes to the \"LOVE THE LIQUID\" page.",
-        "Mobile menu shows a nav link that routes to the \"LOVE THE LIQUID\" page and closes the menu when clicked."
+        "Frontend includes simple timing logs (development-only) around initial route render and key data fetch completion (feed/posts and post detail/comments).",
+        "Backend includes minimal logging (where appropriate) or structured code organization to make hot paths identifiable without adding heavy overhead.",
+        "No user-facing text includes debug/perf output in production builds."
       ]
     }
   ],
   "constraints": [
-    "Use English for any user-facing text.",
-    "Do not edit files under frontend/src/components/ui (compose existing shadcn components instead).",
-    "Do not edit immutable hook files (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx)."
+    "Do not edit files under frontend/src/components/ui (shadcn/ui) directly; compose them instead.",
+    "Do not edit immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services or external databases.",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Implementing payments, subscriptions, or storing purchase/donation state in the backend.",
-    "Adding any new authentication provider beyond Internet Identity.",
-    "Building a custom checkout flow; the Ko-fi experience remains hosted by Ko-fi."
+    "Do not add new product features unrelated to performance optimization (e.g., new social features, new monetization flows, new AI assistant behavior).",
+    "Do not integrate third-party analytics, APM tools, or external monitoring services.",
+    "Do not redesign the visual theme unless required for a performance fix (keep UI changes minimal and performance-driven)."
   ],
   "imageRequirements": {
     "required": [],

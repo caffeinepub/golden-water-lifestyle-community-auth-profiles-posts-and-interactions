@@ -1,47 +1,72 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { ExternalBlob } from '../backend';
 
 /**
- * Hook that converts backend ExternalBlob (image) to a blob URL and manages cleanup
- * Prevents memory leaks by revoking URLs on unmount or when image changes
+ * Custom hook to convert backend ExternalBlob (images) to browser-safe URLs.
+ * Prefers direct streaming URLs when available, falls back to bytes+objectURL.
+ * Properly manages URL lifecycle to prevent memory leaks.
  */
-export function useBackendImageUrl(image: ExternalBlob | undefined | null): string | null {
+export function useBackendImageUrl(blob: ExternalBlob | undefined | null): string | null {
   const [url, setUrl] = useState<string | null>(null);
+  const blobRefRef = useRef<ExternalBlob | undefined | null>(blob);
+  const urlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!image) {
+    // Track if this effect is still mounted
+    let isMounted = true;
+
+    // Clean up previous URL if blob reference changed
+    if (blobRefRef.current !== blob && urlRef.current) {
+      URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+      setUrl(null);
+    }
+
+    blobRefRef.current = blob;
+
+    if (!blob) {
       setUrl(null);
       return;
     }
 
+    // Try direct URL first (streaming, no memory overhead)
     try {
-      // Prefer direct URL for streaming and caching
-      const directUrl = image.getDirectURL();
-      if (directUrl) {
+      const directUrl = blob.getDirectURL();
+      if (directUrl && isMounted) {
         setUrl(directUrl);
+        urlRef.current = directUrl;
         return;
       }
-    } catch (error) {
-      console.warn('Failed to get direct URL for image:', error);
+    } catch (e) {
+      // Direct URL not available, fall through to bytes
     }
 
-    // Fallback to bytes + object URL
-    let objectUrl: string | null = null;
-    image.getBytes().then((bytes) => {
-      const blob = new Blob([bytes], { type: 'image/jpeg' }); // Default type
-      objectUrl = URL.createObjectURL(blob);
-      setUrl(objectUrl);
-    }).catch((error) => {
-      console.error('Failed to get image bytes:', error);
-      setUrl(null);
-    });
+    // Fall back to bytes + object URL
+    blob
+      .getBytes()
+      .then((bytes) => {
+        if (!isMounted) return;
+        const blobObj = new Blob([bytes], { type: 'image/jpeg' });
+        const objectUrl = URL.createObjectURL(blobObj);
+        setUrl(objectUrl);
+        urlRef.current = objectUrl;
+      })
+      .catch((error) => {
+        console.error('Failed to load image:', error);
+        if (isMounted) {
+          setUrl(null);
+        }
+      });
 
     return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
+      isMounted = false;
+      // Clean up object URL on unmount
+      if (urlRef.current && urlRef.current.startsWith('blob:')) {
+        URL.revokeObjectURL(urlRef.current);
+        urlRef.current = null;
       }
     };
-  }, [image]);
+  }, [blob]);
 
   return url;
 }
