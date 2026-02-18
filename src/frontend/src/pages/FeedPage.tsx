@@ -3,9 +3,10 @@ import { useNavigate } from '@tanstack/react-router';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Loader2, Send, Image as ImageIcon, Video as VideoIcon, X, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Loader2, Send, Image as ImageIcon, Video as VideoIcon, X, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useGetPostsPage, useCreatePost, useIsCallerAdmin } from '../hooks/useQueries';
+import { useActor } from '../hooks/useActor';
 import PostCard from '../components/posts/PostCard';
 import { LoadingSkeleton, ErrorState, EmptyState } from '../components/state/QueryState';
 import { Alert, AlertDescription } from '../components/ui/alert';
@@ -33,6 +34,7 @@ PostList.displayName = 'PostList';
 export default function FeedPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useCurrentUser();
+  const { actor, isFetching: actorFetching } = useActor();
   const { data, isLoading, error, refetch, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetPostsPage(20);
   const { data: isAdmin = false } = useIsCallerAdmin();
   const createPost = useCreatePost();
@@ -124,6 +126,12 @@ export default function FeedPage() {
     e.preventDefault();
     if ((!content.trim() && !selectedImageFile && !selectedVideoFile) || !isAuthenticated) return;
 
+    // Check if actor is available
+    if (!actor || actorFetching) {
+      setSubmissionError('The app is still connecting. Please wait a moment and try again.');
+      return;
+    }
+
     perfMark('post-creation');
     setSubmissionError(null);
     setImageError(null);
@@ -132,6 +140,7 @@ export default function FeedPage() {
     setSuccessMessage(null);
 
     try {
+      // Convert files to ExternalBlob, ensuring clean state
       let imageData: ExternalBlob | null = null;
       let videoData: ExternalBlob | null = null;
 
@@ -151,6 +160,7 @@ export default function FeedPage() {
 
       perfMeasure('post-creation', 'Feed: Post creation complete');
 
+      // Clear form state after successful submission
       setContent('');
       handleRemoveImage();
       handleRemoveVideo();
@@ -161,6 +171,12 @@ export default function FeedPage() {
       console.error('Failed to create post:', error);
       const errorMessage = normalizeModerationMessage(error);
       const errorType = categorizeError(errorMessage);
+      
+      // Check if it's an actor availability error
+      if (errorMessage.includes('still connecting') || errorMessage.includes('Actor not available')) {
+        setSubmissionError('The app is still connecting. Please wait a moment and try again.');
+        return;
+      }
       
       switch (errorType) {
         case 'moderation':
@@ -177,7 +193,7 @@ export default function FeedPage() {
           break;
       }
     }
-  }, [content, selectedImageFile, selectedVideoFile, isAuthenticated, createPost, handleRemoveImage, handleRemoveVideo]);
+  }, [content, selectedImageFile, selectedVideoFile, isAuthenticated, actor, actorFetching, createPost, handleRemoveImage, handleRemoveVideo]);
 
   const handleAddImageClick = useCallback(() => {
     if (imageInputRef.current) {
@@ -231,6 +247,10 @@ export default function FeedPage() {
   const showInitialError = error && !hasExistingPosts;
   const isRefetching = isFetching && hasExistingPosts;
 
+  // Determine if posting should be disabled
+  const isActorReady = !!actor && !actorFetching;
+  const isPostingDisabled = !isActorReady || (!content.trim() && !selectedImageFile && !selectedVideoFile) || createPost.isPending;
+
   if (!isAuthenticated) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-2xl">
@@ -264,7 +284,7 @@ export default function FeedPage() {
                 rows={4}
                 maxLength={1000}
                 className="resize-none"
-                disabled={createPost.isPending}
+                disabled={!isActorReady || createPost.isPending}
               />
               
               {imagePreviewUrl && (
@@ -282,7 +302,7 @@ export default function FeedPage() {
                     size="icon"
                     className="absolute top-2 right-2"
                     onClick={handleRemoveImage}
-                    disabled={createPost.isPending}
+                    disabled={!isActorReady || createPost.isPending}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -302,11 +322,20 @@ export default function FeedPage() {
                     size="icon"
                     className="absolute top-2 right-2"
                     onClick={handleRemoveVideo}
-                    disabled={createPost.isPending}
+                    disabled={!isActorReady || createPost.isPending}
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
+              )}
+
+              {!isActorReady && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Connecting to the network... Please wait a moment before posting.
+                  </AlertDescription>
+                </Alert>
               )}
 
               {moderationError && (
@@ -363,7 +392,7 @@ export default function FeedPage() {
                     variant="outline"
                     size="sm"
                     onClick={handleAddImageClick}
-                    disabled={createPost.isPending || !!selectedImageFile || !!selectedVideoFile}
+                    disabled={!isActorReady || createPost.isPending || !!selectedImageFile || !!selectedVideoFile}
                   >
                     <ImageIcon className="h-4 w-4 mr-2" />
                     Add Image
@@ -373,7 +402,7 @@ export default function FeedPage() {
                     variant="outline"
                     size="sm"
                     onClick={handleAddVideoClick}
-                    disabled={createPost.isPending || !!selectedImageFile || !!selectedVideoFile}
+                    disabled={!isActorReady || createPost.isPending || !!selectedImageFile || !!selectedVideoFile}
                   >
                     <VideoIcon className="h-4 w-4 mr-2" />
                     Add Video
@@ -384,7 +413,7 @@ export default function FeedPage() {
                 </div>
                 <Button
                   type="submit"
-                  disabled={(!content.trim() && !selectedImageFile && !selectedVideoFile) || createPost.isPending}
+                  disabled={isPostingDisabled}
                   className="w-full sm:w-auto"
                 >
                   {createPost.isPending ? (

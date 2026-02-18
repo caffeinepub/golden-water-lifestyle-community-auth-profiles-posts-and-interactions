@@ -13,6 +13,7 @@ const AdminPanelPage = lazy(() => import('./pages/AdminPanelPage'));
 const TipsPage = lazy(() => import('./pages/TipsPage'));
 const FactsPage = lazy(() => import('./pages/FactsPage'));
 const LoveTheLiquidPage = lazy(() => import('./pages/LoveTheLiquidPage'));
+const GoldWaterTrackerPage = lazy(() => import('./pages/GoldWaterTrackerPage'));
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -72,7 +73,13 @@ const loveTheLiquidRoute = createRoute({
   component: LoveTheLiquidPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, feedRoute, postDetailRoute, profileRoute, adminRoute, tipsRoute, factsRoute, loveTheLiquidRoute]);
+const goldWaterTrackerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/gold-water-tracker',
+  component: GoldWaterTrackerPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, feedRoute, postDetailRoute, profileRoute, adminRoute, tipsRoute, factsRoute, loveTheLiquidRoute, goldWaterTrackerRoute]);
 
 const router = createRouter({ routeTree });
 

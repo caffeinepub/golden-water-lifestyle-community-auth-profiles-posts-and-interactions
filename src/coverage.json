@@ -1,106 +1,61 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T16:02:21.373Z",
+  "generatedAt": "2026-02-18T14:16:05.884Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Reduce frontend load time and runtime re-rendering by optimizing React component rendering in high-traffic views (especially the feed) and ensuring expensive computations are memoized and/or moved out of render paths.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/components/posts/PostCard.tsx",
-          "frontend/src/hooks/useBackendImageUrl.ts",
-          "frontend/src/hooks/useBackendExternalBlobUrl.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/components/posts/PostCard.tsx",
-          "frontend/src/hooks/useBackendImageUrl.ts",
-          "frontend/src/hooks/useBackendExternalBlobUrl.ts"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Optimize React Query usage to reduce unnecessary network calls and UI blocking by tuning caching, refetch behavior, and invalidation patterns for posts, comments, admin views, and guidelines.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/LandingPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Improve feed scalability by adding backend-supported pagination (or windowed retrieval) for posts and updating the frontend to request posts in pages instead of always calling the full post list endpoint.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/FeedPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/FeedPage.tsx"
-        ]
-      },
-      {
         "id": "REQ-4",
-        "summary": "Improve backend responsiveness for read-heavy operations by reducing avoidable full-map scans and repeated work in common read paths (posts, comments, admin moderation views).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Create a new frontend page titled \"Gold Water Tracker\" that embeds the full site https://quench-joy-flow.lovable.app/ in an iframe, with responsive sizing that works on mobile and desktop.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/GoldWaterTrackerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/GoldWaterTrackerPage.tsx"
+        ]
       },
       {
         "id": "REQ-5",
-        "summary": "Add lightweight performance instrumentation and sanity checks for key flows (initial load, loading feed, loading post detail, creating a post) so performance improvements can be verified during development.",
+        "summary": "Add a new route for the \"Gold Water Tracker\" page at a stable path (e.g., \"/gold-water-tracker\") in the TanStack Router configuration so it can be navigated to directly by URL.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/perf.ts",
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/pages/PostDetailPage.tsx"
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/perf.ts",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Expose navigation to the new \"Gold Water Tracker\" page from the app navigation (desktop header nav and mobile menu) using English user-facing text.",
+        "status": "implemented",
+        "plannedFiles": [
           "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/pages/FeedPage.tsx",
-          "frontend/src/pages/PostDetailPage.tsx"
+          "frontend/src/components/layout/MobileNav.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/admin/ReportedCommentsPanel.tsx",
-    "frontend/src/components/comments/CommentItem.tsx",
+    "frontend/src/App.tsx",
     "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/posts/PostCard.tsx",
-    "frontend/src/config.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useBackendExternalBlobUrl.ts",
-    "frontend/src/hooks/useBackendImageUrl.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/FeedPage.tsx",
-    "frontend/src/pages/PostDetailPage.tsx",
-    "frontend/src/utils/perf.ts",
+    "frontend/src/components/layout/MobileNav.tsx",
+    "frontend/src/pages/GoldWaterTrackerPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

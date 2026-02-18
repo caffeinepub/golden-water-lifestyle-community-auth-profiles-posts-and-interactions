@@ -2,13 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-reduce-frontend-load-time-and-runtime-re-rendering-by-optimizing-react-component-rendering-in-high-traffic-views-especially-the-feed-and-ensuring-expensive-computations-are-memoized-and-or-moved-out-of-render-paths",
-      "featureTitle": "Reduce frontend load time and runtime re-rendering by optimizing React component rendering in high-traffic views (especially the feed) and ensuring expensive computations are memoized and/or moved out of render paths.",
+      "featureId": "feature-create-a-new-frontend-page-titled-gold-water-tracker-that-embeds-the-full-site-https-quench-joy-flow-lovable-app-in-an-iframe-with-responsive-sizing-that-works-on-mobile-and-desktop",
+      "featureTitle": "Create a new frontend page titled \"Gold Water Tracker\" that embeds the full site https://quench-joy-flow.lovable.app/ in an iframe, with responsive sizing that works on mobile and desktop.",
       "files": [
-        "frontend/src/components/posts/PostCard.tsx",
-        "frontend/src/hooks/useBackendExternalBlobUrl.ts",
-        "frontend/src/hooks/useBackendImageUrl.ts",
-        "frontend/src/pages/FeedPage.tsx"
+        "frontend/src/pages/GoldWaterTrackerPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -20,59 +17,15 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-4"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-optimize-react-query-usage-to-reduce-unnecessary-network-calls-and-ui-blocking-by-tuning-caching-refetch-behavior-and-invalidation-patterns-for-posts-comments-admin-views-and-guidelines",
-      "featureTitle": "Optimize React Query usage to reduce unnecessary network calls and UI blocking by tuning caching, refetch behavior, and invalidation patterns for posts, comments, admin views, and guidelines.",
+      "featureId": "feature-add-a-new-route-for-the-gold-water-tracker-page-at-a-stable-path-e-g-gold-water-tracker-in-the-tanstack-router-configuration-so-it-can-be-navigated-to-directly-by-url",
+      "featureTitle": "Add a new route for the \"Gold Water Tracker\" page at a stable path (e.g., \"/gold-water-tracker\") in the TanStack Router configuration so it can be navigated to directly by URL.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-improve-feed-scalability-by-adding-backend-supported-pagination-or-windowed-retrieval-for-posts-and-updating-the-frontend-to-request-posts-in-pages-instead-of-always-calling-the-full-post-list-endpoint",
-      "featureTitle": "Improve feed scalability by adding backend-supported pagination (or windowed retrieval) for posts and updating the frontend to request posts in pages instead of always calling the full post list endpoint.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/FeedPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-lightweight-performance-instrumentation-and-sanity-checks-for-key-flows-initial-load-loading-feed-loading-post-detail-creating-a-post-so-performance-improvements-can-be-verified-during-development",
-      "featureTitle": "Add lightweight performance instrumentation and sanity checks for key flows (initial load, loading feed, loading post detail, creating a post) so performance improvements can be verified during development.",
-      "files": [
-        "frontend/src/components/layout/AppLayout.tsx",
-        "frontend/src/pages/FeedPage.tsx",
-        "frontend/src/pages/PostDetailPage.tsx",
-        "frontend/src/utils/perf.ts"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -85,6 +38,27 @@
       ],
       "testIds": [
         "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-expose-navigation-to-the-new-gold-water-tracker-page-from-the-app-navigation-desktop-header-nav-and-mobile-menu-using-english-user-facing-text",
+      "featureTitle": "Expose navigation to the new \"Gold Water Tracker\" page from the app navigation (desktop header nav and mobile menu) using English user-facing text.",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/layout/MobileNav.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

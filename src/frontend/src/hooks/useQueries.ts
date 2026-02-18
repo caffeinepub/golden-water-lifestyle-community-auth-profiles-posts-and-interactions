@@ -3,6 +3,7 @@ import { useActor } from './useActor';
 import type { Post, Comment, Profile, ReactionType, UserRole, ModerationStatus } from '../backend';
 import { ExternalBlob } from '../backend';
 import { Principal } from '@dfinity/principal';
+import { toCandidOpt } from '../utils/candidOption';
 
 // ============================================================================
 // Profile Queries
@@ -120,7 +121,7 @@ export function useGetPost(postId: bigint) {
 }
 
 export function useCreatePost() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -133,12 +134,22 @@ export function useCreatePost() {
       image: ExternalBlob | null;
       video: ExternalBlob | null;
     }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.createPost(content, image, video);
+      if (!actor) {
+        throw new Error('The app is still connecting. Please wait a moment and try again.');
+      }
+      
+      // Ensure optional fields are properly encoded for Candid
+      const imageOpt = toCandidOpt(image);
+      const videoOpt = toCandidOpt(video);
+      
+      return actor.createPost(content, imageOpt, videoOpt);
     },
     onSuccess: () => {
       // Invalidate only the paginated posts query
       queryClient.invalidateQueries({ queryKey: ['posts', 'paginated'] });
+    },
+    meta: {
+      actorFetching,
     },
   });
 }

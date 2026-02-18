@@ -1,109 +1,57 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "LOVE THE LIQUID — Frontend Performance Optimization Plan",
+  "title": "Golden Water — Gold Water Tracker iframe page + route + navigation",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Reduce feed and other high-traffic view re-renders by memoizing expensive work and stabilizing component props/state boundaries.",
+      "id": "REQ-4",
+      "summary": "Add a new “Gold Water Tracker” page that embeds the full Quench Joy Flow site in a responsive iframe without breaking the app layout.",
       "acceptanceCriteria": [
-        "Typing in the Feed post composer does not trigger re-rendering of the entire post list (confirm via React DevTools profiler: post list components remain stable while typing).",
-        "Any list sorting/filtering that currently runs on every render is memoized and only recomputes when its inputs change.",
-        "No unnecessary object URL creation/revocation loops occur during normal navigation and posting flows."
+        "Navigating to the new page shows an iframe rendering https://quench-joy-flow.lovable.app/ (full site, not a partial section).",
+        "The embedded site is usable on common viewport sizes (mobile and desktop) without horizontal overflow in the parent app.",
+        "The iframe includes an accessible title and does not break the surrounding app layout (header/footer remain visible)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/FeedPage.tsx",
-          "operation": "modify",
-          "description": "Isolate the composer UI from the feed list rendering more strongly (stable props + memo boundaries), avoid creating new derived arrays/handlers on each keystroke, and lift cross-cutting state (e.g., admin flag) to prevent per-card query subscriptions from cascading re-renders."
-        },
-        {
-          "path": "frontend/src/components/posts/PostCard.tsx",
-          "operation": "modify",
-          "description": "Reduce per-item re-render triggers by removing per-card global queries (e.g., admin check) and passing stable, precomputed props from the parent; keep expensive derived values (e.g., formatted date, display name selection) memo-friendly and ensure memoization remains effective."
-        },
-        {
-          "path": "frontend/src/hooks/useBackendImageUrl.ts",
-          "operation": "modify",
-          "description": "Harden URL lifecycle management to prevent accidental create/revoke loops when blob references change frequently (ensure effect dependencies and cleanup behavior are correct and stable under rapid list refreshes)."
-        },
-        {
-          "path": "frontend/src/hooks/useBackendExternalBlobUrl.ts",
-          "operation": "modify",
-          "description": "Harden URL lifecycle management to prevent accidental create/revoke loops when blob references change frequently (ensure effect dependencies and cleanup behavior are correct and stable under rapid list refreshes)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Tune React Query caching/refetching and invalidation to reduce unnecessary calls and UI blocking across posts, comments, admin views, and guidelines.",
-      "acceptanceCriteria": [
-        "Posts auto-refresh (currently enabled via query invalidation interval) does not refetch more frequently than necessary and does not refetch while the app is not visible (e.g., when the tab is hidden).",
-        "Queries that are unlikely to change frequently (e.g., content guidelines) retain long stale times and do not refetch on window focus (verify network panel shows no repeated guideline fetches during routine navigation).",
-        "Mutations invalidate only the minimal required query keys (e.g., creating a comment invalidates that post’s comment query rather than all comments)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Update React Query hooks to: (1) avoid manual interval-based invalidation for posts; prefer query-managed refresh that pauses when the tab is hidden, (2) set explicit refetch-on-focus behavior for infrequently-changing queries (e.g., guidelines) and for admin views, and (3) tighten invalidation scopes (avoid broad invalidations like all 'comments' when only one post’s comments need refresh)."
-        },
-        {
-          "path": "frontend/src/pages/LandingPage.tsx",
-          "operation": "modify",
-          "description": "Ensure the guidelines view relies on the tuned query behavior (long stale time, no focus refetch) without introducing any new user-facing text; keep UI changes minimal."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Switch feed loading from full-list retrieval to paged loading using backend-supported pagination, with a UX to load more and correct new-post appearance.",
-      "acceptanceCriteria": [
-        "Backend exposes a paginated posts query (e.g., accepts page size and cursor/offset) that returns a stable ordering and enough information to request the next page.",
-        "Frontend feed loads an initial page quickly and provides a way to fetch additional pages (infinite scroll or “Load more”).",
-        "Existing behavior remains correct: newly created posts appear without requiring a full refetch of all historical posts."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add a paginated/infinite posts query hook using the existing backend pagination capability (e.g., getPostsPage) and adjust post-creation mutation handling so the new post appears promptly (update the first page cache and/or minimally refetch only the necessary page keys)."
-        },
-        {
-          "path": "frontend/src/pages/FeedPage.tsx",
-          "operation": "modify",
-          "description": "Update the feed to request posts in pages and render a 'Load more' control (or infinite behavior) backed by the new paginated query hook; keep sorting/ordering stable and avoid full historical refetches when a new post is created."
+          "path": "frontend/src/pages/GoldWaterTrackerPage.tsx",
+          "operation": "create",
+          "description": "Create the Gold Water Tracker page with a responsive, full-width iframe pointed at https://quench-joy-flow.lovable.app/. Ensure the iframe has an accessible title, uses sizing that works on mobile/desktop (no parent horizontal overflow), and is contained so the existing AppLayout header/footer remain visible."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Add lightweight, development-only performance instrumentation for initial load, feed load, post detail load, and post creation flow.",
+      "summary": "Register a stable, lazy-loaded TanStack Router route for the Gold Water Tracker page.",
       "acceptanceCriteria": [
-        "Frontend includes simple timing logs (development-only) around initial route render and key data fetch completion (feed/posts and post detail/comments).",
-        "Backend includes minimal logging (where appropriate) or structured code organization to make hot paths identifiable without adding heavy overhead.",
-        "No user-facing text includes debug/perf output in production builds."
+        "Visiting the route path directly loads the Gold Water Tracker page via the existing router (no blank screen / no 404).",
+        "The new route is lazy-loaded consistently with other non-landing pages."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/perf.ts",
-          "operation": "create",
-          "description": "Create a small dev-only performance helper (guarded by build-time dev checks) to mark/measure route render and data-ready timings and to standardize console logging without leaking debug output into production."
-        },
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a lazy import for GoldWaterTrackerPage, create a new route at a stable path (e.g., \"/gold-water-tracker\"), and include it in the route tree alongside existing lazy-loaded pages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Expose navigation links to the Gold Water Tracker page in both desktop header navigation and the mobile menu.",
+      "acceptanceCriteria": [
+        "Desktop navigation includes a link labeled \"Gold Water Tracker\" that navigates to the new route.",
+        "Mobile navigation includes a link labeled \"Gold Water Tracker\" that navigates to the new route and closes the mobile sheet.",
+        "All user-facing labels added for this feature are in English."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add dev-only timing logs for initial app/layout mount and route transitions (without changing user-facing UI text) using the shared perf helper."
+          "description": "Add a desktop header nav Link labeled \"Gold Water Tracker\" pointing to the new route, ensuring the label is in English and is available from the main navigation."
         },
         {
-          "path": "frontend/src/pages/FeedPage.tsx",
+          "path": "frontend/src/components/layout/MobileNav.tsx",
           "operation": "modify",
-          "description": "Add dev-only timing logs for: first feed render, initial posts page data-ready, and post creation completion using the shared perf helper; ensure logs are not shown in the UI and do not run in production builds."
-        },
-        {
-          "path": "frontend/src/pages/PostDetailPage.tsx",
-          "operation": "modify",
-          "description": "Add dev-only timing logs for: post detail render, post data-ready, and comments data-ready using the shared perf helper; ensure logs are not shown in the UI and do not run in production builds."
+          "description": "Add a mobile menu Link labeled \"Gold Water Tracker\" pointing to the new route, wired to call onClose so the mobile sheet closes after navigation; ensure the label is in English."
         }
       ]
     }

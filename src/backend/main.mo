@@ -9,10 +9,10 @@ import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
-import Migration "migration";
+
 import Timer "mo:core/Timer";
 
-(with migration = Migration.run)
+
 actor {
   include MixinStorage();
 

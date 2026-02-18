@@ -47,6 +47,13 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
             Facts
           </Link>
           <Link
+            to="/gold-water-tracker"
+            onClick={onClose}
+            className="text-base font-medium hover:text-primary transition-colors py-2"
+          >
+            Gold Water Tracker
+          </Link>
+          <Link
             to="/love-the-liquid"
             onClick={onClose}
             className="text-base font-medium hover:text-primary transition-colors py-2"

@@ -1,40 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Optimize an existing website for performance across all aspects (frontend and backend), aiming for faster load times and overall speed improvements.",
-  "architectural_notes": [],
+  "summary": "Project to add a new page that embeds the full Quench Joy Flow water tracker site.",
+  "architectural_notes": [
+    "Embed the full external site on a new page (likely via iframe-style embed)."
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-reduce-frontend-load-time-and-runtime-re-rendering-by-optimizing-react-component-rendering-in-high-traffic-views-especially-the-feed-and-ensuring-expensive-computations-are-memoized-and-or-moved-out-of-render-paths",
-      "title": "Reduce frontend load time and runtime re-rendering by optimizing React component rendering in high-traffic views (especially the feed) and ensuring expensive computations are memoized and/or moved out of render paths.",
+      "id": "feature-create-a-new-frontend-page-titled-gold-water-tracker-that-embeds-the-full-site-https-quench-joy-flow-lovable-app-in-an-iframe-with-responsive-sizing-that-works-on-mobile-and-desktop",
+      "title": "Create a new frontend page titled \"Gold Water Tracker\" that embeds the full site https://quench-joy-flow.lovable.app/ in an iframe, with responsive sizing that works on mobile and desktop.",
       "reqIds": [
-        "REQ-1"
+        "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-optimize-react-query-usage-to-reduce-unnecessary-network-calls-and-ui-blocking-by-tuning-caching-refetch-behavior-and-invalidation-patterns-for-posts-comments-admin-views-and-guidelines",
-      "title": "Optimize React Query usage to reduce unnecessary network calls and UI blocking by tuning caching, refetch behavior, and invalidation patterns for posts, comments, admin views, and guidelines.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-improve-feed-scalability-by-adding-backend-supported-pagination-or-windowed-retrieval-for-posts-and-updating-the-frontend-to-request-posts-in-pages-instead-of-always-calling-the-full-post-list-endpoint",
-      "title": "Improve feed scalability by adding backend-supported pagination (or windowed retrieval) for posts and updating the frontend to request posts in pages instead of always calling the full post list endpoint.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-lightweight-performance-instrumentation-and-sanity-checks-for-key-flows-initial-load-loading-feed-loading-post-detail-creating-a-post-so-performance-improvements-can-be-verified-during-development",
-      "title": "Add lightweight performance instrumentation and sanity checks for key flows (initial load, loading feed, loading post detail, creating a post) so performance improvements can be verified during development.",
+      "id": "feature-add-a-new-route-for-the-gold-water-tracker-page-at-a-stable-path-e-g-gold-water-tracker-in-the-tanstack-router-configuration-so-it-can-be-navigated-to-directly-by-url",
+      "title": "Add a new route for the \"Gold Water Tracker\" page at a stable path (e.g., \"/gold-water-tracker\") in the TanStack Router configuration so it can be navigated to directly by URL.",
       "reqIds": [
         "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-expose-navigation-to-the-new-gold-water-tracker-page-from-the-app-navigation-desktop-header-nav-and-mobile-menu-using-english-user-facing-text",
+      "title": "Expose navigation to the new \"Gold Water Tracker\" page from the app navigation (desktop header nav and mobile menu) using English user-facing text.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -42,21 +36,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Optimize website performance across all aspects (frontend speed, backend responsiveness, load time).",
+      "summary": "Create a new page (\"Gold Water Tracker\") that embeds the full site https://quench-joy-flow.lovable.app/ (site embed)",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Improve backend responsiveness for read-heavy operations by reducing avoidable full-map scans and repeated work in common read paths (posts, comments, admin moderation views).",
-      "reqIds": [
-        "REQ-4"
-      ],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "LOVE THE LIQUID",
+  "projectName": "Golden Water",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

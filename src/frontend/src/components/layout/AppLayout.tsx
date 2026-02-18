@@ -61,6 +61,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     Facts
                   </Link>
                   <Link
+                    to="/gold-water-tracker"
+                    className="text-sm font-medium hover:text-primary transition-colors"
+                  >
+                    Gold Water Tracker
+                  </Link>
+                  <Link
                     to="/love-the-liquid"
                     className="text-sm font-medium hover:text-primary transition-colors"
                   >
