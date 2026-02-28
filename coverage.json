@@ -1,0 +1,64 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-18T14:16:05.884Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 3,
+    "items": [
+      {
+        "id": "REQ-4",
+        "summary": "Create a new frontend page titled \"Gold Water Tracker\" that embeds the full site https://quench-joy-flow.lovable.app/ in an iframe, with responsive sizing that works on mobile and desktop.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/GoldWaterTrackerPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/GoldWaterTrackerPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Add a new route for the \"Gold Water Tracker\" page at a stable path (e.g., \"/gold-water-tracker\") in the TanStack Router configuration so it can be navigated to directly by URL.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Expose navigation to the new \"Gold Water Tracker\" page from the app navigation (desktop header nav and mobile menu) using English user-facing text.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/components/layout/MobileNav.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/components/layout/MobileNav.tsx",
+    "frontend/src/pages/GoldWaterTrackerPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

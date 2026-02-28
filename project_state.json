@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Project to add a new page that embeds the full Quench Joy Flow water tracker site.",
+  "architectural_notes": [
+    "Embed the full external site on a new page (likely via iframe-style embed)."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-a-new-frontend-page-titled-gold-water-tracker-that-embeds-the-full-site-https-quench-joy-flow-lovable-app-in-an-iframe-with-responsive-sizing-that-works-on-mobile-and-desktop",
+      "title": "Create a new frontend page titled \"Gold Water Tracker\" that embeds the full site https://quench-joy-flow.lovable.app/ in an iframe, with responsive sizing that works on mobile and desktop.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-route-for-the-gold-water-tracker-page-at-a-stable-path-e-g-gold-water-tracker-in-the-tanstack-router-configuration-so-it-can-be-navigated-to-directly-by-url",
+      "title": "Add a new route for the \"Gold Water Tracker\" page at a stable path (e.g., \"/gold-water-tracker\") in the TanStack Router configuration so it can be navigated to directly by URL.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-expose-navigation-to-the-new-gold-water-tracker-page-from-the-app-navigation-desktop-header-nav-and-mobile-menu-using-english-user-facing-text",
+      "title": "Expose navigation to the new \"Gold Water Tracker\" page from the app navigation (desktop header nav and mobile menu) using English user-facing text.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a new page (\"Gold Water Tracker\") that embeds the full site https://quench-joy-flow.lovable.app/ (site embed)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Golden Water",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

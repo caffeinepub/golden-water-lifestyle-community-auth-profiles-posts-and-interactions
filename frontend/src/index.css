@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.75rem;
+        /* Warm gold/amber palette for light mode */
+        --background: 0.98 0.02 45;
+        --foreground: 0.25 0.03 35;
+        --card: 0.99 0.015 50;
+        --card-foreground: 0.25 0.03 35;
+        --popover: 0.99 0.015 50;
+        --popover-foreground: 0.25 0.03 35;
+        --primary: 0.65 0.15 55;
+        --primary-foreground: 0.98 0.02 45;
+        --secondary: 0.92 0.05 50;
+        --secondary-foreground: 0.30 0.03 35;
+        --muted: 0.94 0.03 48;
+        --muted-foreground: 0.50 0.02 40;
+        --accent: 0.75 0.18 45;
+        --accent-foreground: 0.98 0.02 45;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0.02 45;
+        --border: 0.88 0.04 48;
+        --input: 0.88 0.04 48;
+        --ring: 0.65 0.15 55;
+        --chart-1: 0.70 0.16 50;
+        --chart-2: 0.60 0.12 45;
+        --chart-3: 0.80 0.14 55;
+        --chart-4: 0.65 0.18 40;
+        --chart-5: 0.75 0.15 60;
+        --sidebar: 0.98 0.02 45;
+        --sidebar-foreground: 0.25 0.03 35;
+        --sidebar-primary: 0.65 0.15 55;
+        --sidebar-primary-foreground: 0.98 0.02 45;
+        --sidebar-accent: 0.92 0.05 50;
+        --sidebar-accent-foreground: 0.30 0.03 35;
+        --sidebar-border: 0.88 0.04 48;
+        --sidebar-ring: 0.65 0.15 55;
+        /* Moderation alert colors - warm amber/red for warnings */
+        --moderation-alert: 0.75 0.16 40;
+        --moderation-alert-foreground: 0.20 0.02 35;
+    }
+
+    .dark {
+        /* Warm dark mode with charcoal and gold accents */
+        --background: 0.20 0.02 35;
+        --foreground: 0.95 0.02 50;
+        --card: 0.25 0.02 35;
+        --card-foreground: 0.95 0.02 50;
+        --popover: 0.22 0.02 35;
+        --popover-foreground: 0.95 0.02 50;
+        --primary: 0.75 0.18 50;
+        --primary-foreground: 0.20 0.02 35;
+        --secondary: 0.30 0.03 38;
+        --secondary-foreground: 0.95 0.02 50;
+        --muted: 0.28 0.02 37;
+        --muted-foreground: 0.65 0.03 45;
+        --accent: 0.70 0.16 48;
+        --accent-foreground: 0.98 0.02 45;
+        --destructive: 0.60 0.20 25;
+        --destructive-foreground: 0.95 0.02 50;
+        --border: 0.32 0.02 36;
+        --input: 0.32 0.02 36;
+        --ring: 0.75 0.18 50;
+        --chart-1: 0.70 0.16 50;
+        --chart-2: 0.60 0.12 45;
+        --chart-3: 0.80 0.14 55;
+        --chart-4: 0.65 0.18 40;
+        --chart-5: 0.75 0.15 60;
+        --sidebar: 0.22 0.02 35;
+        --sidebar-foreground: 0.95 0.02 50;
+        --sidebar-primary: 0.75 0.18 50;
+        --sidebar-primary-foreground: 0.20 0.02 35;
+        --sidebar-accent: 0.30 0.03 38;
+        --sidebar-accent-foreground: 0.95 0.02 50;
+        --sidebar-border: 0.32 0.02 36;
+        --sidebar-ring: 0.75 0.18 50;
+        /* Moderation alert colors for dark mode */
+        --moderation-alert: 0.65 0.14 45;
+        --moderation-alert-foreground: 0.98 0.02 45;
+    }
+
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+}
+
+@layer components {
+    .hero-gradient {
+        background: linear-gradient(135deg, oklch(0.85 0.08 50) 0%, oklch(0.75 0.12 45) 100%);
+    }
+    
+    .dark .hero-gradient {
+        background: linear-gradient(135deg, oklch(0.35 0.06 45) 0%, oklch(0.25 0.04 40) 100%);
+    }
+    
+    /* Moderation alert styling with warm amber/red semantics */
+    .moderation-alert {
+        @apply border-2;
+        border-color: oklch(var(--moderation-alert));
+        background-color: oklch(var(--moderation-alert) / 0.1);
+    }
+    
+    .moderation-alert svg {
+        color: oklch(var(--moderation-alert));
+    }
+    
+    .moderation-alert [class*="AlertDescription"] {
+        color: oklch(var(--moderation-alert-foreground));
+    }
+}

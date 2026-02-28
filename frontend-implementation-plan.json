@@ -1,0 +1,59 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Golden Water — Gold Water Tracker iframe page + route + navigation",
+  "requirements": [
+    {
+      "id": "REQ-4",
+      "summary": "Add a new “Gold Water Tracker” page that embeds the full Quench Joy Flow site in a responsive iframe without breaking the app layout.",
+      "acceptanceCriteria": [
+        "Navigating to the new page shows an iframe rendering https://quench-joy-flow.lovable.app/ (full site, not a partial section).",
+        "The embedded site is usable on common viewport sizes (mobile and desktop) without horizontal overflow in the parent app.",
+        "The iframe includes an accessible title and does not break the surrounding app layout (header/footer remain visible)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/GoldWaterTrackerPage.tsx",
+          "operation": "create",
+          "description": "Create the Gold Water Tracker page with a responsive, full-width iframe pointed at https://quench-joy-flow.lovable.app/. Ensure the iframe has an accessible title, uses sizing that works on mobile/desktop (no parent horizontal overflow), and is contained so the existing AppLayout header/footer remain visible."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Register a stable, lazy-loaded TanStack Router route for the Gold Water Tracker page.",
+      "acceptanceCriteria": [
+        "Visiting the route path directly loads the Gold Water Tracker page via the existing router (no blank screen / no 404).",
+        "The new route is lazy-loaded consistently with other non-landing pages."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a lazy import for GoldWaterTrackerPage, create a new route at a stable path (e.g., \"/gold-water-tracker\"), and include it in the route tree alongside existing lazy-loaded pages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Expose navigation links to the Gold Water Tracker page in both desktop header navigation and the mobile menu.",
+      "acceptanceCriteria": [
+        "Desktop navigation includes a link labeled \"Gold Water Tracker\" that navigates to the new route.",
+        "Mobile navigation includes a link labeled \"Gold Water Tracker\" that navigates to the new route and closes the mobile sheet.",
+        "All user-facing labels added for this feature are in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Add a desktop header nav Link labeled \"Gold Water Tracker\" pointing to the new route, ensuring the label is in English and is available from the main navigation."
+        },
+        {
+          "path": "frontend/src/components/layout/MobileNav.tsx",
+          "operation": "modify",
+          "description": "Add a mobile menu Link labeled \"Gold Water Tracker\" pointing to the new route, wired to call onClose so the mobile sheet closes after navigation; ensure the label is in English."
+        }
+      ]
+    }
+  ]
+}

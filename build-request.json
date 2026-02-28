@@ -1,0 +1,81 @@
+{
+  "kind": "build_request",
+  "title": "Add Gold Water Tracker page with embedded Quench Joy Flow site",
+  "projectName": "Golden Water",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-4",
+      "text": "Create a new frontend page titled \"Gold Water Tracker\" that embeds the full site https://quench-joy-flow.lovable.app/ in an iframe, with responsive sizing that works on mobile and desktop.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-8",
+          "msg-12"
+        ],
+        "quotes": [
+          "https://quench-joy-flow.lovable.app/ embed this water tracker",
+          "site, new page , embed",
+          "gold water tracker"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Navigating to the new page shows an iframe rendering https://quench-joy-flow.lovable.app/ (full site, not a partial section).",
+        "The embedded site is usable on common viewport sizes (mobile and desktop) without horizontal overflow in the parent app.",
+        "The iframe includes an accessible title and does not break the surrounding app layout (header/footer remain visible)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add a new route for the \"Gold Water Tracker\" page at a stable path (e.g., \"/gold-water-tracker\") in the TanStack Router configuration so it can be navigated to directly by URL.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-8",
+          "msg-12"
+        ],
+        "quotes": [
+          "site, new page , embed",
+          "bulild it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Visiting the route path directly loads the Gold Water Tracker page via the existing router (no blank screen / no 404).",
+        "The new route is lazy-loaded consistently with other non-landing pages."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Expose navigation to the new \"Gold Water Tracker\" page from the app navigation (desktop header nav and mobile menu) using English user-facing text.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-12"
+        ],
+        "quotes": [
+          "bulild it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Desktop navigation includes a link labeled \"Gold Water Tracker\" that navigates to the new route.",
+        "Mobile navigation includes a link labeled \"Gold Water Tracker\" that navigates to the new route and closes the mobile sheet.",
+        "All user-facing labels added for this feature are in English."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify files under frontend/src/components/ui (read-only Shadcn components).",
+    "Do not modify immutable paths listed in SYSTEM_CONTEXT (e.g., Internet Identity hooks and main.tsx).",
+    "No backend changes are required for this embed; implement as a frontend-only feature."
+  ],
+  "nonGoals": [
+    "Recreating the water tracker natively in React (must embed the existing site).",
+    "Adding authentication, data syncing, or persistence for the embedded tracker.",
+    "Changing or fixing the external site https://quench-joy-flow.lovable.app/ itself."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
